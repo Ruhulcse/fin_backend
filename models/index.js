@@ -10,7 +10,8 @@ let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(`postgres://wybinwvo:rECoE_Yxz0uso29nJSmv6k56VDgVZauZ@raja.db.elephantsql.com/wybinwvo`,
+  {logging: false });
 }
 
 fs
@@ -19,15 +20,15 @@ fs
     return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
   })
   .forEach(file => {
-    console.log(`Importing model: ${file}`);
+    // console.log(`Importing model: ${file}`);
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    console.log(`Imported model: ${model.name}`);
+    // console.log(`Imported model: ${model.name}`);
     db[model.name] = model;
   });
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
-    console.log(`Associating model: ${modelName}`);
+    // console.log(`Associating model: ${modelName}`);
     db[modelName].associate(db);
   }
 });
