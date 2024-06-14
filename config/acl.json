@@ -1,0 +1,22 @@
+{
+  "admin": {
+    "signup": ["*"],
+    "reset-password": ["*"],
+    "users": ["*"],
+    "admin": ["*"],
+    "workouts": ["*"],
+    "tracking": ["*"],
+    "tasks": ["*"],
+    "exercises": ["*"]
+  },
+  "user": {
+    "signup": ["*"],
+    "reset-password": ["*"],
+    "users": ["POST", "GET", "PUT"],
+    "admin": ["POST", "GET", "PUT"],
+    "workouts": ["POST", "GET", "PUT"],
+    "tracking": ["POST", "GET", "PUT"],
+    "tasks": ["POST", "GET", "PUT"],
+    "exercises": ["POST", "GET", "PUT"]
+  }
+}

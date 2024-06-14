@@ -1,42 +1,42 @@
-const bcrypt = require("bcryptjs");
 const db = require("../models");
-const User = db.User;
-const UserDetail = db.UserDetail;
 const Task = db.Task;
 const logger = require("../logger");
+const { createResponse } = require("../utils/responseGenerate");
 
 // Define the get tasks for a user route
-module.exports.getTask = async (req, res) => {
+module.exports.getTask = async (req, res, next) => {
   logger.debug("Get tasks for user");
   const { userId } = req.params;
 
   try {
-    const tasks = await db.Task.findAll({ where: { user_id: userId } });
-    logger.info("Fetched tasks for user ID:", userId);
-    res.json(tasks);
+    const tasks = await Task.findAll({ where: { user_id: userId } });
+    if (!tasks || tasks.length === 0) {
+      res.status(404).json(createResponse(null, "Task not found."));
+      return;
+    }
+    res.json(createResponse(tasks, "Task successfully retrive."));
   } catch (error) {
     logger.error("Error fetching tasks for user ID:", userId, error.message);
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
 // Define the update task status route
-module.exports.updateTask = async (req, res) => {
+module.exports.updateTask = async (req, res, next) => {
   logger.debug("Update task status", req.body, req.params);
   const { task_status } = req.body;
   const { taskId } = req.params;
 
   try {
-    const [updated] = await db.Task.update(
+    const [updated] = await Task.update(
       { task_status },
       { where: { task_id: taskId } }
     );
     if (updated) {
       const updatedTask = await db.Task.findOne({ where: { task_id: taskId } });
-      logger.info("Task status updated successfully for task ID:", taskId);
-      res.json(updatedTask);
+      res.json(createResponse(updatedTask, "Task successfully Updated."));
     } else {
-      throw new Error("Task not found");
+      res.json(createResponse(null, "Task not found."));
     }
   } catch (error) {
     logger.error(
@@ -44,6 +44,6 @@ module.exports.updateTask = async (req, res) => {
       taskId,
       error.message
     );
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };

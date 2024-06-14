@@ -5,12 +5,14 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
+require("dotenv").config();
+const db_url = process.env.DB_URI;
 
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(`postgres://wybinwvo:rECoE_Yxz0uso29nJSmv6k56VDgVZauZ@raja.db.elephantsql.com/wybinwvo`,
+  sequelize = new Sequelize(db_url,
   {logging: false });
 }
 

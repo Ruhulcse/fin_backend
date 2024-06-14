@@ -1,34 +1,29 @@
-const bcrypt = require("bcryptjs");
 const db = require("../models");
-const User = db.User;
-const UserDetail = db.UserDetail;
-const Task = db.Task;
 const logger = require("../logger");
+const { createResponse } = require("../utils/responseGenerate");
 
 // Define the get tracking metrics for a user route
-module.exports.getTrackingBYUserID = async (req, res) => {
-  logger.debug("Get tracking metrics for user ID:", req.params.userId);
+module.exports.getTrackingBYUserID = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
     const measurements = await db.Measurement.findAll({
       where: { user_id: userId },
     });
-    logger.info("Fetched tracking metrics for user ID:", userId);
-    res.json(measurements);
+    res.json(createResponse(measurements, "Measurement successfully retrive."));
   } catch (error) {
     logger.error(
       "Error fetching tracking metrics for user ID:",
       userId,
       error.message
     );
-    res.status(500).json({ error: error.message });
+    // res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
 // Define the get latest measurement for a user route
-module.exports.getMeasurementBYUserID = async (req, res) => {
-  logger.debug("Get latest measurement for user ID:", req.params.userId);
+module.exports.getMeasurementBYUserID = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
@@ -37,60 +32,64 @@ module.exports.getMeasurementBYUserID = async (req, res) => {
       order: [["date", "DESC"]],
     });
     logger.info("Fetched latest measurement for user ID:", userId);
-    res.json(latestMeasurement);
+    res.json(
+      createResponse(latestMeasurement, "Measurement successfully retrive.")
+    );
   } catch (error) {
     logger.error(
       "Error fetching latest measurement for user ID:",
       userId,
       error.message
     );
-    res.status(500).json({ error: error.message });
+    // res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
 // Define the get workouts for a user route
-module.exports.getWorkoutsBYUserID = async (req, res) => {
-  logger.debug("Fetching workouts for user ID:", req.params.userId);
+module.exports.getWorkoutsBYUserID = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
     const workouts = await db.Workout.findAll({
       where: { user_id: userId },
-      include: [
-        {
-          model: db.Exercise,
-          through: {
-            attributes: [
-              "trainer_exp",
-              "sets_to_do",
-              "reps_to_do",
-              "goal_weight",
-              "manipulation",
-              "sets_done",
-              "reps_done",
-              "last_set_weight",
-            ],
-          },
-        },
-      ],
+      // include: [
+      //   {
+      //     model: db.Exercise,
+      //     through: {
+      //       attributes: [
+      //         "trainer_exp",
+      //         "sets_to_do",
+      //         "reps_to_do",
+      //         "goal_weight",
+      //         "manipulation",
+      //         "sets_done",
+      //         "reps_done",
+      //         "last_set_weight",
+      //       ],
+      //     },
+      //   },
+      // ],
     });
-    logger.info("Workouts fetched for user ID:", userId);
-    res.json(workouts);
+    res.json(createResponse(workouts, "Workouts successfully retrive."));
   } catch (error) {
     logger.error("Error fetching workouts for user ID:", userId, error.message);
-    res.status(500).json({ error: "Database error" });
+    // res.status(500).json({ error: "Database error" });
+    next(error);
   }
 };
 
 // Define the add new food entry route
-module.exports.createFoodEntry = async (req, res) => {
+module.exports.createFoodEntry = async (req, res, next) => {
   logger.debug("Add new food entry");
-  const { user_id, description, task_id } = req.body;
+  const { steps_to_do, result_dt, description, task_id } = req.body;
 
   try {
     const newEntry = await db.ResultTracking.create({
       task_id,
       eating_day_free_txt: description,
+      steps_to_do,
+      result_dt,
     });
 
     // Update the task status to 'Finish'
@@ -98,19 +97,16 @@ module.exports.createFoodEntry = async (req, res) => {
       await db.Task.update({ task_status: "Finish" }, { where: { task_id } });
     }
 
-    logger.info("New food entry added successfully");
-    res
-      .status(200)
-      .json({ message: "New food entry added successfully", id: newEntry.id });
+    res.json(createResponse(newEntry, "New food entry successfully create."));
   } catch (error) {
     logger.error("Error inserting new food entry:", error.message);
-    res.status(500).json({ error: "Database error" });
+    // res.status(500).json({ error: "Database error" });
+    next(error);
   }
 };
 
 // Define the get exercise by ID route
-module.exports.getExercisesByID = async (req, res) => {
-  logger.debug("Get exercise by ID:", req.params.exerciseId);
+module.exports.getExercisesByID = async (req, res, next) => {
   const { exerciseId } = req.params;
 
   try {
@@ -118,16 +114,16 @@ module.exports.getExercisesByID = async (req, res) => {
       where: { exercise_id: exerciseId },
     });
     logger.info("Fetched exercise for ID:", exerciseId);
-    res.json(exercise);
+    res.json(createResponse(exercise, "Exercise successfully retrive."));
   } catch (error) {
     logger.error("Error fetching exercise for ID:", exerciseId, error.message);
-    res.status(500).json({ error: "Internal server error" });
+    // res.status(500).json({ error: "Internal server error" });
+    next(error);
   }
 };
 
 // Define the save workout data route
-module.exports.createWorkout = async (req, res) => {
-  logger.debug("Save workout data");
+module.exports.createWorkout = async (req, res, next) => {
   const { workoutId, exercises } = req.body;
 
   try {
@@ -157,19 +153,20 @@ module.exports.createWorkout = async (req, res) => {
     }
 
     logger.info("Workout data saved successfully for workout ID:", workoutId);
-    res.status(200).json({ message: "Workout data saved successfully" });
+    res.json(createResponse(null, "Workout successfully updated."));
   } catch (error) {
     logger.error(
       "Error saving workout data for workout ID:",
       workoutId,
       error.message
     );
-    res.status(500).json({ error: "Failed to save workout data" });
+    // res.status(500).json({ error: "Failed to save workout data" });
+    next(error);
   }
 };
 
 // Define the tracking route
-// app.post("/api/tracking", upload.array("photos", 4), createTrack = async (req, res) => {
+// app.post("/api/tracking", upload.array("photos", 4), createTrack = async (req, res,next) => {
 //   const {
 //     user_id,
 //     date,
@@ -222,6 +219,6 @@ module.exports.createWorkout = async (req, res) => {
 //       });
 //   } catch (error) {
 //     logger.error("Error inserting new measurement:", error);
-//     res.status(500).json({ error: "Database error" });
+// next(error);
 //   }
 // });

@@ -3,7 +3,14 @@ const app = express();
 const cors = require("cors");
 const routes = require("./routes");
 const multer = require("multer");
-const logger = require("./logger");
+// const logger = require("./logger");
+
+const logger = require("morgan");
+const helmet = require("helmet");
+const auth = require("./middlewares/auth");
+const errorHandler = require("./middlewares/errors");
+require("./helpers/create_admin");
+const { createResponse } = require("./utils/responseGenerate");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
 
@@ -19,9 +26,9 @@ app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
-// app.use("/api", auth.authorize);
-// app.use(logger("dev"));
-// app.use(helmet());
+app.use("/api", auth.authorize);
+app.use(logger("dev"));
+app.use(helmet());
 app.use(routes);
 app.use("/public", express.static("public"));
 
@@ -29,7 +36,7 @@ app.get("/", (req, res) => {
   res.send(createResponse(false, "Hello World!"));
 });
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 app.all("*", (req, res) => {
   res.status(404).send(createResponse(true, "Not Found!"));

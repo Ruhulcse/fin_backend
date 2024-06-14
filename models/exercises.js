@@ -16,9 +16,17 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    equipment: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     exercise_description: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    video_url: {
+      type: DataTypes.STRING,
+      // allowNull: true,
     },
   }, {
     sequelize,
