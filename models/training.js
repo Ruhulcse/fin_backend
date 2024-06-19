@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       references: {
         model: 'exercises',
-        key: 'exercise_id',
+        key: 'id',
       },
     },
     trainer_exp: {

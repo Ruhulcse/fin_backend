@@ -81,8 +81,7 @@ module.exports.getWorkoutsBYUserID = async (req, res, next) => {
 
 // Define the add new food entry route
 module.exports.createFoodEntry = async (req, res, next) => {
-  logger.debug("Add new food entry");
-  const { steps_to_do, result_dt, description, task_id } = req.body;
+  const { steps_to_do, avg_steps, result_dt, description, task_id } = req.body;
 
   try {
     const newEntry = await db.ResultTracking.create({
@@ -90,6 +89,7 @@ module.exports.createFoodEntry = async (req, res, next) => {
       eating_day_free_txt: description,
       steps_to_do,
       result_dt,
+      avg_steps,
     });
 
     // Update the task status to 'Finish'
@@ -101,23 +101,6 @@ module.exports.createFoodEntry = async (req, res, next) => {
   } catch (error) {
     logger.error("Error inserting new food entry:", error.message);
     // res.status(500).json({ error: "Database error" });
-    next(error);
-  }
-};
-
-// Define the get exercise by ID route
-module.exports.getExercisesByID = async (req, res, next) => {
-  const { exerciseId } = req.params;
-
-  try {
-    const exercise = await db.Exercise.findOne({
-      where: { exercise_id: exerciseId },
-    });
-    logger.info("Fetched exercise for ID:", exerciseId);
-    res.json(createResponse(exercise, "Exercise successfully retrive."));
-  } catch (error) {
-    logger.error("Error fetching exercise for ID:", exerciseId, error.message);
-    // res.status(500).json({ error: "Internal server error" });
     next(error);
   }
 };

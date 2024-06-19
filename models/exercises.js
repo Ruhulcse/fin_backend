@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Exercise extends Sequelize.Model {}
   Exercise.init({
-    exercise_id: {
+    id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    exercise_name: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    exercise_description: {
+    description: {
       type: DataTypes.STRING,
       allowNull: true,
     },

@@ -12,6 +12,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      first_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      last_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -34,8 +42,20 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      phone: DataTypes.STRING,
+      address: DataTypes.STRING,
+      city: DataTypes.STRING,
+      state: DataTypes.STRING,
+      zip_code: DataTypes.STRING,
+      symptom_free: DataTypes.STRING,
+      covid_19: DataTypes.STRING,
+      signature: DataTypes.STRING,
       status: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      DOB: {
+        type: DataTypes.DATE,
         allowNull: true,
       },
       due_date: {

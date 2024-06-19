@@ -1,38 +1,11 @@
 const db = require("../models");
 const User = db.User;
-const Exercise = db.Exercise;
 const Workout = db.Workout;
 const Task = db.Task;
 const Training = db.Training;
+const ApprovedEmail = db.ApprovedEmail;
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
-
-const checkAdmin = async (req, res, next) => {
-  logger.debug("Check if user is an admin");
-  const adminUserId = req.headers["admin-user-id"];
-  // console.log(!adminUserId, !(await isAdmin(adminUserId)))
-  if (!adminUserId || !(await isAdmin(adminUserId))) {
-    console.log("Unauthorized from checkAdmin");
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-};
-
-// Helper function to check if a user is an admin
-const isAdmin = async (userId) => {
-  try {
-    const res = await pool.query("SELECT role FROM users WHERE user_id = $1", [
-      userId,
-    ]);
-    if (res.rows.length > 0) {
-      return res.rows[0].role === "admin";
-    }
-    return false;
-  } catch (err) {
-    console.error("Database query error", err);
-    return false;
-  }
-};
 
 module.exports.getUsers = async (req, res) => {
   //  need to check if there is already function for it
@@ -182,35 +155,21 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
   }
 };
 
-// module.exports.insertApprovedEmail = async (req, res) => {
-//   logger.debug("Add new approved email");
-//   const { email } = req.body;
-//   try {
-//     const query = "INSERT INTO approved_emails (email) VALUES ($1)";
-//     const values = [email];
-//     await pool.query(query, values);
-//     logger.info("New approved email added successfully");
-//     res.status(201).json({ message: "New approved email added successfully" });
-//   } catch (error) {
-//     logger.error("Error adding new approved email:", error.message);
-//     res.status(500).json({ error: "Failed to add new approved email" });
-//   }
-// };
-
-module.exports.createExercises = async (req, res, next) => {
+module.exports.insertApprovedEmail = async (req, res) => {
+  logger.debug("Add new approved email");
+  const { email } = req.body;
   try {
-    const { exercise_name, exercise_area, exercise_description } = req.body;
-    const exercise_video = req.file ? req.file.path : null;
-
-    const result = await Exercise.create({
-      exercise_name,
-      area: exercise_area,
-      exercise_description,
-      video_url: exercise_video,
+    await ApprovedEmail.create({
+      email,
     });
-    res.json(createResponse(result, "Exercise successfully create."));
-  } catch (err) {
-    next(err);
+    res.json(
+      createResponse({ email }, "New approved email added successfully.")
+    );
+  } catch (error) {
+    logger.error("Error adding new approved email:", error.message);
+    res.json(
+      createResponse(null, "Failed to add new approved email.")
+    );
   }
 };
 

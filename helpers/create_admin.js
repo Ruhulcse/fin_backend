@@ -9,7 +9,9 @@ const hash = require("./password_hash");
     if (!admin) {
       const hashPass = await hash.new("123456");
       const userInfo = {
-        name: "Jone",
+        first_name: "Jone",
+        last_name: "Doe",
+        name: "Jone Doe",
         email: "test@example.com",
         password: hashPass,
         gender: "male",
