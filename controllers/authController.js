@@ -1,6 +1,6 @@
 const db = require("../models");
 const User = db.User;
-const UserDetail = db.UserDetail;
+// const UserDetail = db.UserDetail;
 const Task = db.Task;
 const ApprovedEmail = db.ApprovedEmail;
 const logger = require("../logger");
@@ -8,6 +8,7 @@ const hash = require("../helpers/password_hash");
 const { createResponse } = require("../utils/responseGenerate");
 const jwt = require("../helpers/jwt");
 const { ErrorHandler } = require("../utils/error");
+const { getUrl } = require("../middlewares/s3Upload");
 
 const validateRegistrationData = (data) => {
   const requiredFields = [
@@ -306,98 +307,58 @@ module.exports.register = async (req, res, next) => {
 };
 
 module.exports.update = async (req, res, next) => {
-  const { body, user } = req;
+  const { body, file, params } = req;
+  const signature = file ? file.filename : null;
   try {
-    const updateUser = await User.create({
-      name: body.name,
-      updatedAt: new Date(),
-    });
-
-    const tasks = [
+    const updateUser = await User.update(
       {
-        user_id: userId,
-        task_name: "יומן תזונה יום ראשון",
-        task_description:
-          "This is your first welcome task. Get familiar with our platform.",
-        task_status: "Pending",
-        task_type: "food",
-        due_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+        first_name: body.first_name,
+        last_name: body.last_name,
+        name: body.name,
+        phone: body.phone,
+        address: body.address,
+        city: body.city,
+        state: body.state,
+        zip_code: body.zip_code,
+        DOB: body.DOB,
+        symptom_free: body.symptom_free,
+        covid_19: body.covid_19,
+        signature,
+        updatedAt: new Date(),
       },
       {
-        user_id: userId,
-        task_name: "יומן תזונה יום שני",
-        task_description:
-          "This is your second welcome task. Complete your profile.",
-        task_status: "Pending",
-        task_type: "food",
-        due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      },
-      {
-        user_id: userId,
-        task_name: "יומן תזונה יום שלישי",
-        task_description:
-          "This is your third welcome task. Set your fitness goals.",
-        task_status: "Pending",
-        task_type: "food",
-        due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      },
-      {
-        user_id: userId,
-        task_name: "מדידת היקפים",
-        task_description:
-          "This is your fourth welcome task. Start tracking your progress.",
-        task_status: "Pending",
-        task_type: "measure",
-        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
-    ];
-
-    for (const task of tasks) {
-      await Task.create(task);
-    }
-
-    let token = "";
-    if (newUser) {
-      const payload = {
-        id: newUser.user_id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        status: newUser.status,
-        exp: Math.floor(Date.now() / 100) + 60 * 60,
-      };
-      token = await jwt.encode(payload);
-    }
-    res.json(
-      createResponse(
-        { token, name: newUser.name, name: newUser.name, id: newUser.user_id },
-        "User successfully create."
-      )
+        where: {
+          user_id: params.id,
+        },
+      }
     );
+
+    res.json(createResponse(updateUser, "User successfully updated."));
   } catch (err) {
     next(err);
   }
 };
 
-// module.exports.login = async (req, res) => {
-//   const { email, password } = req.body;
+module.exports.findOne = async (req, res, next) => {
+  try {
+    const users = await User.findByPk(req.params.id);
+    users.signature = await getUrl(users.signature);
+    res.json(createResponse(users, "User successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching users for admin:", error.message);
+    next(error);
+  }
+};
 
-//   try {
-//     const user = await User.findOne({ where: { email } });
-//     if (user && (await bcrypt.compare(password, user.password))) {
-//       res.json({
-//         id: user.user_id,
-//         name: user.name,
-//         email: user.email,
-//         role: user.role,
-//       });
-//     } else {
-//       res.status(400).json({ error: "Invalid credentials" });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+module.exports.findAll = async (req, res, next) => {
+  try {
+    const users = await User.findAll({});
+    res.json(createResponse(users, "User successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching users for admin:", error.message);
+    next(error);
+  }
+};
 
 module.exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;

@@ -16,7 +16,6 @@ const { getObject, putObject } = require("../middlewares/s3Upload");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.get("/api/admin/users", getUsers);
 router.get("/api/admin/users/:userId/workouts", getWorkoutsByUserID);
 router.get("/api/admin/workouts/:workoutId/training", getTrainingByWorkoutID);
 router.delete("/api/admin/training/:trainingId", deleteTrainingByID);

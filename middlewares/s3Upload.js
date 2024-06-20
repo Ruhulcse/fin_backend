@@ -16,14 +16,16 @@ const s3Client = new S3Client({
 
 const putObject = async (req, res, next) => {
   const { file } = req;
+  const path = req.originalUrl.split("/")[2];
 
   try {
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET,
-      Key: file.originalname,
+      Key: path + "/" + file.filename,
       Body: file.buffer, // assuming you use a middleware like multer to handle file uploads
     });
     await s3Client.send(command);
+    req.file.filename = path + "/" + file.filename;
     next();
   } catch (err) {
     console.error("Error putting object:", err);
@@ -43,7 +45,6 @@ const getUrl = async (key) => {
     res.status(500).json({ error: "Error getting object" });
   }
 };
-
 
 // const getObject = async (req, res, next) => {
 //   const { key } = req.params;
@@ -68,6 +69,5 @@ const getUrl = async (key) => {
 //     next(err)
 //   }
 // };
-
 
 module.exports = { getUrl, putObject };

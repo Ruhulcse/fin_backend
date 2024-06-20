@@ -6,8 +6,8 @@ const { getUrl } = require("../middlewares/s3Upload");
 
 module.exports.createExercises = async (req, res, next) => {
   try {
-    const { name, area, description } = req.body;
-    const exercise_video = req.file ? req.file.originalname : null;
+    const { name, area, description, file } = req.body;
+    const exercise_video = file ? file.filename : null;
 
     const result = await Exercise.create({
       name,

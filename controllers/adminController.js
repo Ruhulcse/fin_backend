@@ -7,18 +7,6 @@ const ApprovedEmail = db.ApprovedEmail;
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
 
-module.exports.getUsers = async (req, res) => {
-  //  need to check if there is already function for it
-  logger.debug("Get all users for admin");
-  try {
-    const users = await User.findAll({});
-    res.json(createResponse(users, "User successfully retrive."));
-  } catch (error) {
-    logger.error("Error fetching users for admin:", error.message);
-    next(error);
-  }
-};
-
 module.exports.getWorkoutsByUserID = async (req, res, next) => {
   const { userId } = req.params;
   try {

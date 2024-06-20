@@ -24,11 +24,13 @@ const imageFilter = function (req, file, cb) {
   cb(null, true);
 };
 
-module.exports.upload = multer({
-  storage: storage,
-  fileFilter: imageFilter,
-  // limits: {
-  //   fieldNameSize: 100,
-  //   fileSize: 5242880, // 5 Mb
-  // },
-}).single("file");
+// module.exports.upload = multer({
+//   storage: storage,
+//   fileFilter: imageFilter,
+//   // limits: {
+//   //   fieldNameSize: 100,
+//   //   fileSize: 5242880, // 5 Mb
+//   // },
+// }).single("file");
+// const storage = multer.memoryStorage();
+module.exports.upload = multer({ storage: storage, fileFilter: imageFilter });
