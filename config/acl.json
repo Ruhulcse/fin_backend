@@ -7,7 +7,8 @@
     "workouts": ["*"],
     "tracking": ["*"],
     "tasks": ["*"],
-    "exercises": ["*"]
+    "exercises": ["*"],
+    "nutrition-plans": ["*"]
   },
   "user": {
     "signup": ["*"],
@@ -17,6 +18,7 @@
     "workouts": ["POST", "GET", "PUT"],
     "tracking": ["POST", "GET", "PUT"],
     "tasks": ["POST", "GET", "PUT"],
-    "exercises": ["GET"]
+    "exercises": ["GET"],
+    "nutrition-plans": ["GET"]
   }
 }

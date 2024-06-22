@@ -8,12 +8,7 @@ module.exports.createExercises = async (req, res, next) => {
   try {
     const { file } = req;
     const { name, area, description, equipment } = req.body;
-    console.log("🚀 ~ module.exports.createExercises= ~ file:", file);
     const exercise_video = file ? file.filename : null;
-    console.log(
-      "🚀 ~ module.exports.createExercises= ~ exercise_video:",
-      exercise_video
-    );
 
     const result = await Exercise.create({
       name,
@@ -22,7 +17,7 @@ module.exports.createExercises = async (req, res, next) => {
       equipment,
       video_url: exercise_video,
     });
-    res.json(createResponse(result, "Exercise successfully create."));
+    res.json(createResponse(result, "Exercise successfully created."));
   } catch (err) {
     next(err);
   }

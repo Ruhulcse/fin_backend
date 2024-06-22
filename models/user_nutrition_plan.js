@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         references: {
           model: "nutrition_plan",
-          key: "plan_id",
+          key: "id",
         },
       },
       selected: {
