@@ -17,6 +17,6 @@
     "workouts": ["POST", "GET", "PUT"],
     "tracking": ["POST", "GET", "PUT"],
     "tasks": ["POST", "GET", "PUT"],
-    "exercises": ["POST", "GET", "PUT"]
+    "exercises": ["GET"]
   }
 }

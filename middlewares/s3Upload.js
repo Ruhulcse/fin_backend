@@ -3,6 +3,7 @@ const {
   S3Client,
   GetObjectCommand,
   PutObjectCommand,
+  DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
 require("dotenv").config();
 
@@ -19,17 +20,34 @@ const putObject = async (req, res, next) => {
   const path = req.originalUrl.split("/")[2];
 
   try {
-    const command = new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET,
-      Key: path + "/" + file.filename,
-      Body: file.buffer, // assuming you use a middleware like multer to handle file uploads
-    });
-    await s3Client.send(command);
-    req.file.filename = path + "/" + file.filename;
+    if (file) {
+      const command = new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: path + "/" + file.filename,
+        Body: file.buffer, // assuming you use a middleware like multer to handle file uploads
+      });
+      await s3Client.send(command);
+      req.file.filename = path + "/" + file.filename;
+    }
     next();
   } catch (err) {
-    console.error("Error putting object:", err);
+    console.error("Error fronm put object::", err);
     next(err);
+  }
+};
+
+const deleteObject = async (key) => {
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+    });
+    await s3Client.send(command);
+    console.log(key, " Deleted Successfully from s3.");
+    return true;
+  } catch (err) {
+    console.error("Error fronm delete object:", err);
+    return false;
   }
 };
 
@@ -41,8 +59,8 @@ const getUrl = async (key) => {
     });
     return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
   } catch (err) {
-    console.error("Error getting object:", err);
-    res.status(500).json({ error: "Error getting object" });
+    console.error("Error fronm get object::", err);
+    res.status(500).json({ error: "Error fronm get object:" + err });
   }
 };
 
@@ -70,4 +88,4 @@ const getUrl = async (key) => {
 //   }
 // };
 
-module.exports = { getUrl, putObject };
+module.exports = { getUrl, putObject, deleteObject };
