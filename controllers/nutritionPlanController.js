@@ -1,6 +1,8 @@
 const db = require("../models");
 const logger = require("../logger");
 const NutritionPlan = db.NutritionPlan;
+const UserNutritionPlans = db.UserNutritionPlans;
+const User = db.User;
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl, deleteObject } = require("../middlewares/s3Upload");
 
@@ -45,7 +47,6 @@ module.exports.updateNutritionPlansByID = async (req, res, next) => {
   }
 };
 
-// Define the get nutritionPlan by ID route
 module.exports.getNutritionPlansByID = async (req, res, next) => {
   const { nutritionPlanId } = req.params;
 
@@ -63,6 +64,64 @@ module.exports.getNutritionPlansByID = async (req, res, next) => {
       nutritionPlanId,
       error.message
     );
+    next(error);
+  }
+};
+
+module.exports.getALlNutritionPlans = async (req, res, next) => {
+  const { query } = req.params;
+
+  try {
+    const nutritionPlan = await db.NutritionPlan.findAll({
+      where: { ...query },
+    });
+    // nutritionPlan.pdf_link = await getUrl(nutritionPlan.pdf_link);
+    res.json(
+      createResponse(nutritionPlan, "NutritionPlan successfully retrive.")
+    );
+  } catch (error) {
+    logger.error("Error fetching nutrition plan:", error.message);
+    next(error);
+  }
+};
+
+module.exports.getUserNutritionPlans = async (req, res, next) => {
+  const { query, user } = req;
+  if (user.role !== "admin") {
+    query = { ...query, user_id: user.user_id };
+  }
+  try {
+    const nutritionPlans = await UserNutritionPlans.findAll({
+      where: query,
+      include: [
+        {
+          model: User,
+          attributes: [
+            "name",
+            "first_name",
+            "last_name",
+            "email",
+            "gender",
+            "phone",
+            "address",
+            "city",
+            "state",
+            "zip_code",
+            "DOB",
+          ],
+        },
+        {
+          model: NutritionPlan,
+          attributes: ["name", "description", "pdf_link"],
+        },
+      ],
+    });
+
+    res.json(
+      createResponse(nutritionPlans, "NutritionPlan successfully retrive.")
+    );
+  } catch (error) {
+    logger.error("Error fetching nutrition plan:", error.message);
     next(error);
   }
 };

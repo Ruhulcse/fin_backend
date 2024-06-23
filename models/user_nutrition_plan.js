@@ -26,6 +26,7 @@ module.exports = (sequelize) => {
       selected: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
+        defaultValue: false,
       },
     },
     {
@@ -34,6 +35,11 @@ module.exports = (sequelize) => {
       timestamps: false,
     }
   );
+
+  UserNutritionPlans.associate = function(models) {
+    UserNutritionPlans.belongsTo(models.User, { foreignKey: 'user_id' });
+    UserNutritionPlans.belongsTo(models.NutritionPlan, { foreignKey: 'nutrition_plan_id' });
+  };
 
   return UserNutritionPlans;
 };

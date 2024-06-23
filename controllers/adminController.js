@@ -1,9 +1,9 @@
 const db = require("../models");
-const User = db.User;
 const Workout = db.Workout;
 const Task = db.Task;
 const Training = db.Training;
 const ApprovedEmail = db.ApprovedEmail;
+const UserNutritionPlans = db.UserNutritionPlans;
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
 
@@ -85,8 +85,6 @@ module.exports.updateTrainingByID = async (req, res, next) => {
 
 module.exports.createWorkoutForUser = async (req, res, next) => {
   const { userId } = req.params;
-  console.log("userId:", userId);
-  // logger.debug('Create new workout for user ID:', userId);
   const {
     workout_name,
     workout_description,
@@ -155,26 +153,22 @@ module.exports.insertApprovedEmail = async (req, res) => {
     );
   } catch (error) {
     logger.error("Error adding new approved email:", error.message);
-    res.json(
-      createResponse(null, "Failed to add new approved email.")
-    );
+    res.json(createResponse(null, "Failed to add new approved email."));
   }
 };
 
-// // TBD
-// app.post("/api/admin/users/:userId/nutrition", upload.single("file"), createNutritionForUser = async (req, res) => {
-//     try {
-//       const query = `
-//       INSERT INTO nutrition_plans (user_id, plan_name, plan_description, file)
-//       VALUES ($1, $2, $3, $4) RETURNING *;
-//     `;
-//       const values = [userId, plan_name, plan_description, file?.path];
-
-//       const result = await pool.query(query, values);
-//       res.status(201).json(result.rows[0]);
-//     } catch (err) {
-//       console.error("Error adding nutrition plan:", err);
-//       res.status(500).json({ error: "Failed to add nutrition plan" });
-//     }
-//   }
-// );
+module.exports.setUserNutritionPlan = async (req, res) => {
+  const { body } = req;
+  try {
+    const payload = body.plan_ids.map((id) => {
+      return { user_id: body.user_id, nutrition_plan_id: id };
+    });
+    const result = await UserNutritionPlans.bulkCreate(payload);
+    res.json(
+      createResponse(result, "User Nutrition Plans Added Successfully.")
+    );
+  } catch (error) {
+    logger.error("Error adding User Nutrition Plans:", error);
+    res.json(createResponse(null, "Failed to add User Nutrition Plans."));
+  }
+};

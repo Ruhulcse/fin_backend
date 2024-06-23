@@ -47,7 +47,6 @@ module.exports.updateExercisesByID = async (req, res, next) => {
   }
 };
 
-// Define the get exercise by ID route
 module.exports.getExercisesByID = async (req, res, next) => {
   const { exerciseId } = req.params;
 
@@ -59,6 +58,21 @@ module.exports.getExercisesByID = async (req, res, next) => {
     res.json(createResponse(exercise, "Exercise successfully retrive."));
   } catch (error) {
     logger.error("Error fetching exercise for ID:", exerciseId, error.message);
+    next(error);
+  }
+};
+
+module.exports.getAllExercises = async (req, res, next) => {
+  const { query, user } = req;
+
+  try {
+    const exercise = await db.Exercise.findAll({
+      where: { ...query },
+    });
+    // exercise.video_url = await getUrl(exercise.video_url);
+    res.json(createResponse(exercise, "Exercise successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching exercise:", error.message);
     next(error);
   }
 };

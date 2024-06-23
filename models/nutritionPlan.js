@@ -32,5 +32,9 @@ module.exports = (sequelize) => {
     timestamps: false,
   });
 
+  NutritionPlan.associate = function(models) {
+    NutritionPlan.hasMany(models.UserNutritionPlans, { foreignKey: 'nutrition_plan_id' });
+  };
+
   return NutritionPlan;
 };
