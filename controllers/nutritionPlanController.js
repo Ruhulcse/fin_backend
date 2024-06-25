@@ -54,7 +54,9 @@ module.exports.getNutritionPlansByID = async (req, res, next) => {
     const nutritionPlan = await db.NutritionPlan.findOne({
       where: { id: nutritionPlanId },
     });
-    nutritionPlan.pdf_link = await getUrl(nutritionPlan.pdf_link);
+    if (nutritionPlan.pdf_link) {
+      nutritionPlan.pdf_link = await getUrl(nutritionPlan.pdf_link);
+    }
     res.json(
       createResponse(nutritionPlan, "NutritionPlan successfully retrive.")
     );

@@ -173,10 +173,12 @@ module.exports.update = async (req, res, next) => {
 module.exports.findOne = async (req, res, next) => {
   try {
     const users = await User.findByPk(req.params.id);
-    users.signature = await getUrl(users.signature);
+    if (users.signature) {
+      users.dataValues.signature = await getUrl(users.dataValues.signature);
+    }
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
-    logger.error("Error fetching users for admin:", error.message);
+    logger.error("Error fetching users for admin:", error);
     next(error);
   }
 };
@@ -212,6 +214,7 @@ module.exports.loginUser = async (req, res, next) => {
         id: user.user_id,
         name: user.name,
         role: user.role,
+        gender: user.gender,
         status: user.status,
         exp: Math.floor(Date.now() / 100) + 60 * 60,
       };
@@ -220,7 +223,13 @@ module.exports.loginUser = async (req, res, next) => {
 
     res.json(
       createResponse(
-        { token, id: user._id, name: user.name, role: user.role },
+        {
+          token,
+          id: user.user_id,
+          name: user.name,
+          gender: user.gender,
+          role: user.role,
+        },
         "User successfully login."
       )
     );

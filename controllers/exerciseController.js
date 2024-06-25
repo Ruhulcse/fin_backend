@@ -54,7 +54,9 @@ module.exports.getExercisesByID = async (req, res, next) => {
     const exercise = await db.Exercise.findOne({
       where: { id: exerciseId },
     });
-    exercise.video_url = await getUrl(exercise.video_url);
+    if (exercise.video_url) {
+      exercise.video_url = await getUrl(exercise.video_url);
+    }
     res.json(createResponse(exercise, "Exercise successfully retrive."));
   } catch (error) {
     logger.error("Error fetching exercise for ID:", exerciseId, error.message);
