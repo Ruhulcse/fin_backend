@@ -16,8 +16,7 @@ const s3Client = new S3Client({
 });
 
 const putObject = async (req, res, next) => {
-  const { file } = req;
-  console.log("🚀 ~ putObject ~ file:", file)
+  const { files, file } = req;
   const path = req.originalUrl.split("/")[2];
 
   try {
@@ -29,6 +28,17 @@ const putObject = async (req, res, next) => {
       });
       await s3Client.send(command);
       req.file.filename = path + "/" + file.filename;
+    }
+    if (files) {
+      for (const file of files) {
+        const command = new PutObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: path + "/" + file.filename,
+          Body: file.buffer, // assuming you use a middleware like multer to handle file uploads
+        });
+        await s3Client.send(command);
+        file.filename = path + "/" + file.filename;
+      }
     }
     next();
   } catch (err) {
