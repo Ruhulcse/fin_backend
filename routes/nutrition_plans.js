@@ -5,6 +5,7 @@ const {
   updateNutritionPlansByID,
   getALlNutritionPlans,
   getUserNutritionPlans,
+  getALlNutritionGuides,
 } = require("../controllers/nutritionPlanController");
 const { putObject } = require("../middlewares/s3Upload");
 const { upload } = require("../middlewares/imageUpload");
@@ -22,6 +23,7 @@ router.put(
   updateNutritionPlansByID
 );
 router.get("/api/nutrition-plans", getALlNutritionPlans);
+router.get("/api/nutrition-plans/guides", getALlNutritionGuides);
 router.get("/api/nutrition-plans/user", getUserNutritionPlans);
 router.get("/api/nutrition-plans/:nutritionPlanId", getNutritionPlansByID);
 

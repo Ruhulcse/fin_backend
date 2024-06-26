@@ -87,6 +87,21 @@ module.exports.getALlNutritionPlans = async (req, res, next) => {
   }
 };
 
+module.exports.getALlNutritionGuides = async (req, res, next) => {
+  try {
+    const nutritionGuides = [{ title: "", description: "", pdf_link: "/" }];
+    for (const guide of nutritionGuides) {
+      guide.pdf_link = await getUrl(guide.pdf_link);
+    }
+    res.json(
+      createResponse(nutritionGuides, "NutritionGuides successfully retrive.")
+    );
+  } catch (error) {
+    logger.error("Error fetching nutrition plan:", error.message);
+    next(error);
+  }
+};
+
 module.exports.getUserNutritionPlans = async (req, res, next) => {
   const { query, user } = req;
   if (user.role !== "admin") {
