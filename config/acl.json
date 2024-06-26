@@ -14,10 +14,9 @@
     "signup": ["*"],
     "reset-password": ["*"],
     "users": ["POST", "GET", "PUT"],
-    "admin": ["POST", "GET", "PUT"],
-    "workouts": ["POST", "GET", "PUT"],
-    "tracking": ["POST", "GET", "PUT"],
-    "tasks": ["POST", "GET", "PUT"],
+    "workouts": ["GET", "PUT"],
+    "tracking": ["GET", "PUT"],
+    "tasks": ["GET", "PUT"],
     "exercises": ["GET"],
     "nutrition-plans": ["GET"]
   }

@@ -1,44 +1,113 @@
 const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
-const { getUrl } = require("../middlewares/s3Upload");
 
-// Define the get workouts for a user route
-module.exports.getWorkoutsBYUserID = async (req, res, next) => {
-  const { userId } = req.params;
+module.exports.createWorkoutForUser = async (req, res, next) => {
+  const {
+    user_id,
+    workout_name,
+    workout_description,
+    scheduled_date,
+    status,
+    training,
+  } = req.body;
+  try {
+    const workoutResult = await db.Workout.create({
+      user_id,
+      workout_name: workout_name,
+      workout_description: workout_description,
+      status: "pending",
+    });
+    const newWorkoutId = workoutResult.dataValues.workout_id;
+
+    for (const entry of training) {
+      await db.Training.create({
+        workout_id: newWorkoutId,
+        exercise_id: entry.exercise_id,
+        trainer_exp: entry.trainer_exp,
+        sets_to_do: entry.sets_to_do,
+        reps_to_do: entry.reps_to_do,
+        goal_weight: entry.goal_weight,
+        manipulation: entry.manipulation,
+        sets_done: 0,
+        reps_done: 0,
+        last_set_weight: 0,
+      });
+    }
+
+    await db.Task.create({
+      user_id,
+      task_name: workout_name,
+      task_status: "Pending",
+      task_type: "workout",
+      task_description: workout_description,
+      related_id: newWorkoutId,
+    });
+    res.json(
+      createResponse(
+        { workout_id: newWorkoutId },
+        "Workout successfully create."
+      )
+    );
+  } catch (error) {
+    logger.error(
+      "Error creating new workout for user ID:",
+      user_id,
+      error.message
+    );
+    next(error);
+  }
+};
+
+// Define the get workouts route
+module.exports.getWorkoutsBYID = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const workouts = await db.Workout.findOne({
+      where: { workout_id: id },
+    });
+    res.json(createResponse(workouts, "Workouts successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching workouts for ID:", userId, error.message);
+    // res.status(500).json({ error: "Database error" });
+    next(error);
+  }
+};
+
+module.exports.getWorkouts = async (req, res, next) => {
+  const { query } = req;
 
   try {
     const workouts = await db.Workout.findAll({
-      where: { user_id: userId },
+      where: query,
       // include: [
       //   {
       //     model: db.Exercise,
-      //     through: {
-      //       attributes: [
-      //         "trainer_exp",
-      //         "sets_to_do",
-      //         "reps_to_do",
-      //         "goal_weight",
-      //         "manipulation",
-      //         "sets_done",
-      //         "reps_done",
-      //         "last_set_weight",
-      //       ],
-      //     },
+      //     attributes: [
+      //       "trainer_exp",
+      //       "sets_to_do",
+      //       "reps_to_do",
+      //       "goal_weight",
+      //       "manipulation",
+      //       "sets_done",
+      //       "reps_done",
+      //       "last_set_weight",
+      //     ],
       //   },
       // ],
     });
     res.json(createResponse(workouts, "Workouts successfully retrive."));
   } catch (error) {
-    logger.error("Error fetching workouts for user ID:", userId, error.message);
+    logger.error("Error fetching workouts:", error.message);
     // res.status(500).json({ error: "Database error" });
     next(error);
   }
 };
 
 // Define the save workout data route
-module.exports.createWorkout = async (req, res, next) => {
-  const { workoutId, exercises } = req.body;
+module.exports.userWorkoutUpdate = async (req, res, next) => {
+  const { workout_id, task_id, exercises } = req.body;
 
   try {
     for (const exercise of exercises) {
@@ -56,17 +125,16 @@ module.exports.createWorkout = async (req, res, next) => {
 
     await db.Workout.update(
       { status: "completed" },
-      { where: { workout_id: workoutId } }
+      { where: { workout_id: workout_id } }
     );
 
-    if (req.body.task_id) {
+    if (task_id) {
       await db.Task.update(
         { task_status: "Finish" },
-        { where: { task_id: req.body.task_id } }
+        { where: { task_id: task_id } }
       );
     }
 
-    logger.info("Workout data saved successfully for workout ID:", workoutId);
     res.json(createResponse(null, "Workout successfully updated."));
   } catch (error) {
     logger.error(
@@ -78,4 +146,3 @@ module.exports.createWorkout = async (req, res, next) => {
     next(error);
   }
 };
-

@@ -24,7 +24,10 @@ module.exports.authorize = async function (req, res, next) {
   let token =
     req.header("authorization") || req.header("token") || req.query.token;
   if (!token) {
-    return next(new Error("user not authorized"));
+    // return next(new Error("user not authorized"));
+    return res
+    .status(401)
+    .send(createResponse(null, "user not authorized", true));
   }
   // check token
   const payload = await jwt.decode(token);

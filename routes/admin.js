@@ -14,7 +14,6 @@ router.get("/api/admin/users/:userId/workouts", getWorkoutsByUserID);
 router.get("/api/admin/workouts/:workoutId/training", getTrainingByWorkoutID);
 router.delete("/api/admin/training/:trainingId", deleteTrainingByID);
 router.put("/api/admin/training/:trainingId", updateTrainingByID);
-router.post("/api/admin/users/:userId/workouts", createWorkoutForUser);
 router.post("/api/admin/user-nutrition-plans", setUserNutritionPlan);
 router.post("/api/admin/approved_emails", insertApprovedEmail);
 
