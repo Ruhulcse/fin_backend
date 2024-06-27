@@ -43,12 +43,13 @@ module.exports = (sequelize) => {
         defaultValue: false,
       },
       status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "inactive",
       },
       new_user: {
         type: DataTypes.BOOLEAN,
-        defaultValue: true,
+        defaultValue: true, 
       },
       // DOB: {
       //   type: DataTypes.DATE,

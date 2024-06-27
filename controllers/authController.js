@@ -1,6 +1,6 @@
 const db = require("../models");
 const User = db.User;
-// const UserDetail = db.UserDetail;
+const UserDetail = db.UserDetail;
 const Task = db.Task;
 const ApprovedEmail = db.ApprovedEmail;
 const logger = require("../logger");
@@ -65,8 +65,8 @@ module.exports.register = async (req, res, next) => {
       gender: body.gender,
       password: body.password,
       role: "user",
-      status: body.status || null, // Set status if provided, otherwise null
-      due_date: body.due_date || null, // Set due_date if provided, otherwise null
+      status: body.status || 'inactive', // Set status if provided, otherwise null
+      // due_date: body.due_date || null, // Set due_date if provided, otherwise null
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -122,6 +122,7 @@ module.exports.register = async (req, res, next) => {
         email: newUser.email,
         role: newUser.role,
         status: newUser.status,
+        new_user: newUser.new_user,
         exp: Math.floor(Date.now() / 100) + 60 * 60,
       };
       token = await jwt.encode(payload);
@@ -138,32 +139,17 @@ module.exports.register = async (req, res, next) => {
 };
 
 module.exports.update = async (req, res, next) => {
-  const { body, file, params } = req;
-  const signature = file ? file.filename : null;
+  const { body, params } = req;
+  const payload = { updatedAt: new Date() };
+  if (body.gender) payload.gender = body.gender;
+  if (body.status) payload.status = body.status;
+  if (body.new_user) payload.new_user = body.new_user;
   try {
-    const updateUser = await User.update(
-      {
-        first_name: body.first_name,
-        last_name: body.last_name,
-        name: body.name,
-        gender: body.gender,
-        phone: body.phone,
-        address: body.address,
-        city: body.city,
-        state: body.state,
-        zip_code: body.zip_code,
-        DOB: body.DOB,
-        symptom_free: body.symptom_free,
-        covid_19: body.covid_19,
-        signature,
-        updatedAt: new Date(),
+    const updateUser = await User.update(payload, {
+      where: {
+        user_id: params.id,
       },
-      {
-        where: {
-          user_id: params.id,
-        },
-      }
-    );
+    });
 
     res.json(createResponse(updateUser, "User successfully updated."));
   } catch (err) {
@@ -174,6 +160,7 @@ module.exports.update = async (req, res, next) => {
 module.exports.findOne = async (req, res, next) => {
   try {
     const users = await User.findByPk(req.params.id);
+    delete users.dataValues.password;
     if (users && users?.signature) {
       users.signature = await getUrl(users.signature);
     }
@@ -197,7 +184,7 @@ module.exports.findAll = async (req, res, next) => {
 module.exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ where: { email, status: true } });
+    const user = await User.findOne({ where: { email, status: "active" } });
     if (!user) {
       res.json(createResponse(null, "User unauthorized!."));
       // throw new ErrorHandler("User unauthorized!.", 401);
@@ -217,6 +204,7 @@ module.exports.loginUser = async (req, res, next) => {
         role: user.role,
         gender: user.gender,
         status: user.status,
+        new_user: user.new_user,
         exp: Math.floor(Date.now() / 100) + 60 * 60,
       };
       token = await jwt.encode(payload);
@@ -265,48 +253,56 @@ module.exports.getIntroUrl = async (req, res, next) => {
   }
 };
 
-updateUserDetials = async (data) => {
-  await UserDetail.create({
-    user_id: data.user_id,
-    phone: data.phone,
-    age: data.age,
-    height: data.height,
-    weight: data.weight,
-    highest_weight: data.highest_weight,
-    training_years: data.training_years,
-    training_frequency: data.training_frequency,
-    preferred_training_location: data.preferred_training_location,
-    home_equipment: data.home_equipment,
-    desired_equipment: data.desired_equipment,
-    strength_training_description: data.strength_training_description,
-    favorite_cardio: data.favorite_cardio,
-    preferred_focus_areas: data.preferred_focus_areas,
-    injuries: data.injuries,
-    favorite_foods: data.favorite_foods,
-    disliked_foods: data.disliked_foods,
-    food_tracking_method: data.food_tracking_method,
-    past_diets: data.past_diets,
-    current_cardio_routine: data.current_cardio_routine,
-    daily_nutrition: data.daily_nutrition,
-    weekend_nutrition: data.weekend_nutrition,
-    favorite_recipes: data.favorite_recipes,
-    alcohol_consumption: data.alcohol_consumption,
-    medications: data.medications,
-    sleep_hours: data.sleep_hours,
-    current_job: data.current_job,
-    activity_level: data.activity_level,
-    sports_participation: data.sports_participation,
-    mirror_reflection: data.mirror_reflection,
-    long_term_goals: data.long_term_goals,
-    motivation_level: data.motivation_level,
-    commitment_declaration: data.commitment_declaration,
-    additional_notes: data.additional_notes,
-    medical_statement: data.JSON.stringify(medicalStatement),
-    signature,
-    terms_accepted: data.termsAccepted,
-    mailing_accepted: data.mailingAccepted,
-  });
+module.exports.updateUserDetials = async (req, res, next) => {
+  const { body, file } = req;
+  const signature = file ? file.filename : null;
+  const data = JSON.parse(body.user_details);
 
-  logger.info("User details inserted successfully");
-  return true;
+  try {
+    const details = await UserDetail.create({
+      user_id: data.user_id,
+      phone: data.phone,
+      age: data.age,
+      height: data.height,
+      weight: data.weight,
+      highest_weight: data.highest_weight,
+      training_years: data.training_years,
+      training_frequency: data.training_frequency,
+      preferred_training_location: data.preferred_training_location,
+      home_equipment: data.home_equipment,
+      desired_equipment: data.desired_equipment,
+      strength_training_description: data.strength_training_description,
+      favorite_cardio: data.favorite_cardio,
+      preferred_focus_areas: data.preferred_focus_areas,
+      injuries: data.injuries,
+      favorite_foods: data.favorite_foods,
+      disliked_foods: data.disliked_foods,
+      food_tracking_method: data.food_tracking_method,
+      past_diets: data.past_diets,
+      current_cardio_routine: data.current_cardio_routine,
+      daily_nutrition: data.daily_nutrition,
+      weekend_nutrition: data.weekend_nutrition,
+      favorite_recipes: data.favorite_recipes,
+      alcohol_consumption: data.alcohol_consumption,
+      medications: data.medications,
+      sleep_hours: data.sleep_hours,
+      current_job: data.current_job,
+      activity_level: data.activity_level,
+      sports_participation: data.sports_participation,
+      mirror_reflection: data.mirror_reflection,
+      long_term_goals: data.long_term_goals,
+      motivation_level: data.motivation_level,
+      commitment_declaration: data.commitment_declaration,
+      additional_notes: data.additional_notes,
+      health_declaration: data.health_declaration,
+      signature,
+      terms_accepted: data.termsAccepted,
+      mailing_accepted: data.mailingAccepted,
+    });
+
+    res.json(createResponse(details, "User details inserted successfully"));
+  } catch (err) {
+    console.log("🚀 ~ module.exports.updateUserDetials= ~ err:", err);
+    next(err);
+  }
 };
