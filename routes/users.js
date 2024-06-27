@@ -8,12 +8,14 @@ const {
   getIntroUrl,
   generateAssetUrl,
   updateUserDetials,
+  registerWithGoogle,
 } = require("../controllers/authController");
 const { putObject } = require("../middlewares/s3Upload");
 const { upload } = require("../middlewares/imageUpload");
 
 
 router.post("/signup", register);
+router.post("/signup-google", registerWithGoogle);
 router.post("/login", loginUser);
 router.post("/api/users/get-intro-url", getIntroUrl);
 router.post("/api/users/generate-asset-url", generateAssetUrl);

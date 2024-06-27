@@ -30,6 +30,53 @@ const validateRegistrationData = (data) => {
   return null;
 };
 
+
+module.exports.loginUser = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } }); //, status: "active"
+    if (!user) {
+      res.json(createResponse(null, "User unauthorized!."));
+      // throw new ErrorHandler("User unauthorized!.", 401);
+      return;
+    }
+    const verifyPass = await hash.verify(password, user.password);
+    if (!verifyPass) {
+      res.json(createResponse(null, "User info invalid!."));
+      return;
+      // throw new ErrorHandler("User info invalid!.", 400);
+    }
+    let token = "";
+    if (user) {
+      const payload = {
+        id: user.user_id,
+        name: user.name,
+        role: user.role,
+        gender: user.gender,
+        status: user.status,
+        exp: Math.floor(Date.now() / 100) + 60 * 60,
+      };
+      token = await jwt.encode(payload);
+    }
+
+    res.json(
+      createResponse(
+        {
+          token,
+          id: user.user_id,
+          name: user.name,
+          gender: user.gender,
+          role: user.role,
+          new_user: user.new_user,
+        },
+        "User successfully login."
+      )
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports.register = async (req, res, next) => {
   const { body, user } = req;
 
@@ -65,7 +112,7 @@ module.exports.register = async (req, res, next) => {
       gender: body.gender,
       password: body.password,
       role: "user",
-      status: body.status || 'inactive', // Set status if provided, otherwise null
+      status: body.status || "inactive", // Set status if provided, otherwise null
       // due_date: body.due_date || null, // Set due_date if provided, otherwise null
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -122,17 +169,36 @@ module.exports.register = async (req, res, next) => {
         email: newUser.email,
         role: newUser.role,
         status: newUser.status,
-        new_user: newUser.new_user,
         exp: Math.floor(Date.now() / 100) + 60 * 60,
       };
       token = await jwt.encode(payload);
     }
     res.json(
       createResponse(
-        { token, name: newUser.name, name: newUser.name, id: userId },
+        {
+          token,
+          name: newUser.name,
+          name: newUser.name,
+          id: userId,
+          new_user: newUser.new_user,
+        },
         "User successfully create."
       )
     );
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.registerWithGoogle = async (req, res, next) => {
+  const { body, user } = req;
+  try {
+    const isExist = await User.findOne({ where: { email: body.email } });
+    if (isExist) {
+      return await this.loginUser(req, res, next);
+    } else {
+      return await this.register(req, res, next);
+    }
   } catch (err) {
     next(err);
   }
@@ -178,52 +244,6 @@ module.exports.findAll = async (req, res, next) => {
   } catch (error) {
     logger.error("Error fetching users for admin:", error.message);
     next(error);
-  }
-};
-
-module.exports.loginUser = async (req, res, next) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ where: { email } }); //, status: "active"
-    if (!user) {
-      res.json(createResponse(null, "User unauthorized!."));
-      // throw new ErrorHandler("User unauthorized!.", 401);
-      return;
-    }
-    const verifyPass = await hash.verify(password, user.password);
-    if (!verifyPass) {
-      res.json(createResponse(null, "User info invalid!."));
-      return;
-      // throw new ErrorHandler("User info invalid!.", 400);
-    }
-    let token = "";
-    if (user) {
-      const payload = {
-        id: user.user_id,
-        name: user.name,
-        role: user.role,
-        gender: user.gender,
-        status: user.status,
-        new_user: user.new_user,
-        exp: Math.floor(Date.now() / 100) + 60 * 60,
-      };
-      token = await jwt.encode(payload);
-    }
-
-    res.json(
-      createResponse(
-        {
-          token,
-          id: user.user_id,
-          name: user.name,
-          gender: user.gender,
-          role: user.role,
-        },
-        "User successfully login."
-      )
-    );
-  } catch (err) {
-    next(err);
   }
 };
 
