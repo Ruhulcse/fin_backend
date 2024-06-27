@@ -43,6 +43,15 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       task_description: workout_description,
       workout_id: newWorkoutId,
     });
+
+    if (req.user.new_user === true) {
+      await db.Task.update(
+        {
+          new_user: false,
+        },
+        { where: { user_id } }
+      );
+    }
     res.json(
       createResponse(
         { workout_id: newWorkoutId },
