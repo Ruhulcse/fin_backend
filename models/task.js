@@ -24,6 +24,14 @@ module.exports = (sequelize) => {
     due_date: DataTypes.DATE,
     task_type: DataTypes.STRING,
     task_description: DataTypes.STRING,
+    workout_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'workouts',
+        key: 'workout_id',
+      },
+    },
   }, {
     sequelize,
     tableName: 'tasks',

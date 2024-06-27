@@ -1,6 +1,5 @@
 const db = require("../models");
 const Workout = db.Workout;
-const Task = db.Task;
 const Training = db.Training;
 const ApprovedEmail = db.ApprovedEmail;
 const UserNutritionPlans = db.UserNutritionPlans;
@@ -26,6 +25,25 @@ module.exports.getTrainingByWorkoutID = async (req, res) => {
   const { workoutId } = req.params;
   try {
     const result = await Training.findAll({ where: { workout_id: workoutId } });
+    if (!result || result.length === 0) {
+      res.status(404).json(createResponse(null, "Training not found."));
+      return;
+    }
+    res.json(createResponse(result, "Training successfully retrive."));
+  } catch (error) {
+    logger.error(
+      "Error fetching training details for workout ID:",
+      workoutId,
+      error.message
+    );
+    next(error);
+  }
+};
+
+module.exports.getTrainings = async (req, res) => {
+  const { query } = req;
+  try {
+    const result = await Training.findAll({ where: query });
     if (!result || result.length === 0) {
       res.status(404).json(createResponse(null, "Training not found."));
       return;

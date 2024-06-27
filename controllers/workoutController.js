@@ -41,7 +41,7 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       task_status: "Pending",
       task_type: "workout",
       task_description: workout_description,
-      related_id: newWorkoutId,
+      workout_id: newWorkoutId,
     });
     res.json(
       createResponse(

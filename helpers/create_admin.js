@@ -16,7 +16,9 @@ const hash = require("./password_hash");
         password: hashPass,
         gender: "male",
         role: "admin",
+        status: true,
         is_admin: true,
+        new_user: false,
       };
 
       await User.create(userInfo);

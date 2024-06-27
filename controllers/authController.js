@@ -146,6 +146,7 @@ module.exports.update = async (req, res, next) => {
         first_name: body.first_name,
         last_name: body.last_name,
         name: body.name,
+        gender: body.gender,
         phone: body.phone,
         address: body.address,
         city: body.city,
@@ -173,8 +174,8 @@ module.exports.update = async (req, res, next) => {
 module.exports.findOne = async (req, res, next) => {
   try {
     const users = await User.findByPk(req.params.id);
-    if (users.signature) {
-      users.dataValues.signature = await getUrl(users.dataValues.signature);
+    if (users && users?.signature) {
+      users.signature = await getUrl(users.signature);
     }
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
@@ -196,7 +197,7 @@ module.exports.findAll = async (req, res, next) => {
 module.exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email, status: true } });
     if (!user) {
       res.json(createResponse(null, "User unauthorized!."));
       // throw new ErrorHandler("User unauthorized!.", 401);
@@ -264,45 +265,48 @@ module.exports.getIntroUrl = async (req, res, next) => {
   }
 };
 
-// await UserDetail.create({
-//   user_id: userId,
-//   phone,
-//   age,
-//   height,
-//   weight,
-//   training_years: trainingYears,
-//   training_frequency: trainingFrequency,
-//   preferred_training_location: preferredTrainingLocation,
-//   home_equipment: homeEquipment,
-//   desired_equipment: desiredEquipment,
-//   strength_training_description: strengthTrainingDescription,
-//   preferred_focus_areas: preferredFocusAreas,
-//   favorite_cardio: favoriteCardio,
-//   current_cardio_routine: currentCardioRoutine,
-//   injuries,
-//   highest_weight: highestWeight,
-//   favorite_foods: favoriteFoods,
-//   disliked_foods: dislikedFoods,
-//   food_tracking_method: foodTrackingMethod,
-//   past_diets: pastDiets,
-//   daily_nutrition: dailyNutrition,
-//   weekend_nutrition: weekendNutrition,
-//   favorite_recipes: favoriteRecipes,
-//   alcohol_consumption: alcoholConsumption,
-//   medications,
-//   sleep_hours: sleepHours,
-//   current_job: currentJob,
-//   activity_level: activityLevel,
-//   sports_participation: sportsParticipation,
-//   mirror_reflection: mirrorReflection,
-//   long_term_goals: longTermGoals,
-//   motivation_level: motivationLevel,
-//   commitment_declaration: commitmentDeclaration,
-//   additional_notes: additionalNotes,
-//   medical_statement: JSON.stringify(medicalStatement),
-//   signature,
-//   terms_accepted: termsAccepted,
-//   mailing_accepted: mailingAccepted,
-// });
+updateUserDetials = async (data) => {
+  await UserDetail.create({
+    user_id: data.user_id,
+    phone: data.phone,
+    age: data.age,
+    height: data.height,
+    weight: data.weight,
+    highest_weight: data.highest_weight,
+    training_years: data.training_years,
+    training_frequency: data.training_frequency,
+    preferred_training_location: data.preferred_training_location,
+    home_equipment: data.home_equipment,
+    desired_equipment: data.desired_equipment,
+    strength_training_description: data.strength_training_description,
+    favorite_cardio: data.favorite_cardio,
+    preferred_focus_areas: data.preferred_focus_areas,
+    injuries: data.injuries,
+    favorite_foods: data.favorite_foods,
+    disliked_foods: data.disliked_foods,
+    food_tracking_method: data.food_tracking_method,
+    past_diets: data.past_diets,
+    current_cardio_routine: data.current_cardio_routine,
+    daily_nutrition: data.daily_nutrition,
+    weekend_nutrition: data.weekend_nutrition,
+    favorite_recipes: data.favorite_recipes,
+    alcohol_consumption: data.alcohol_consumption,
+    medications: data.medications,
+    sleep_hours: data.sleep_hours,
+    current_job: data.current_job,
+    activity_level: data.activity_level,
+    sports_participation: data.sports_participation,
+    mirror_reflection: data.mirror_reflection,
+    long_term_goals: data.long_term_goals,
+    motivation_level: data.motivation_level,
+    commitment_declaration: data.commitment_declaration,
+    additional_notes: data.additional_notes,
+    medical_statement: data.JSON.stringify(medicalStatement),
+    signature,
+    terms_accepted: data.termsAccepted,
+    mailing_accepted: data.mailingAccepted,
+  });
 
-// logger.info("User details inserted successfully");
+  logger.info("User details inserted successfully");
+  return true;
+};

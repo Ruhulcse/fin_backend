@@ -42,36 +42,32 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      phone: DataTypes.STRING,
-      address: DataTypes.STRING,
-      city: DataTypes.STRING,
-      state: DataTypes.STRING,
-      zip_code: DataTypes.STRING,
-      symptom_free: DataTypes.STRING,
-      covid_19: DataTypes.STRING,
-      signature: DataTypes.STRING,
       status: {
-        type: DataTypes.STRING,
-        allowNull: true,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
-      DOB: {
-        type: DataTypes.DATE,
-        allowNull: true,
+      new_user: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
-      due_date: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW,
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW,
-      },
+      // DOB: {
+      //   type: DataTypes.DATE,
+      //   allowNull: true,
+      // },
+      // due_date: {
+      //   type: DataTypes.DATE,
+      //   allowNull: true,
+      // },
+      // createdAt: {
+      //   type: DataTypes.DATE,
+      //   allowNull: false,
+      //   defaultValue: Sequelize.NOW,
+      // },
+      // updatedAt: {
+      //   type: DataTypes.DATE,
+      //   allowNull: false,
+      //   defaultValue: Sequelize.NOW,
+      // },
     },
     {
       tableName: "users",
