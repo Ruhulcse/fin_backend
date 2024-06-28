@@ -21,10 +21,22 @@ module.exports.getWorkoutsByUserID = async (req, res, next) => {
   }
 };
 
-module.exports.getTrainingByWorkoutID = async (req, res) => {
+module.exports.getTrainingByWorkoutID = async (req, res, next) => {
   const { workoutId } = req.params;
   try {
-    const result = await Training.findAll({ where: { workout_id: workoutId } });
+    const result = await Training.findAll({
+      where: { workout_id: workoutId },
+      include: [
+        {
+          model: db.Exercise,
+          attributes: ["area", "name"],
+        },
+        // {
+        //   model: db.Workout,
+        //   attributes: ["workout_name", "workout_description"],
+        // },
+      ],
+    });
     if (!result || result.length === 0) {
       res.status(404).json(createResponse(null, "Training not found."));
       return;

@@ -162,7 +162,7 @@ module.exports.createMeasurement = async (req, res, next) => {
 
     res.json(
       createResponse(
-        { id: newMeasurement.id },
+        newMeasurement,
         "New measurement added successfully"
       )
     );

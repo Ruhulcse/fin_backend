@@ -13,10 +13,11 @@ require("./helpers/create_admin");
 const { createResponse } = require("./utils/responseGenerate");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
+// const {createAudience} = require("./helpers/send_email");
 
 require("dotenv").config();
 
-
+// createAudience()
 // Multer storage configuration for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

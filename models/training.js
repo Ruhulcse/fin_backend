@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       references: {
         model: 'exercises',
-        key: 'id',
+        key: 'exercise_id',
       },
     },
     trainer_exp: {
@@ -59,6 +59,11 @@ module.exports = (sequelize) => {
     tableName: 'training',
     timestamps: false,
   });
+
+  Training.associate = (models) => {
+    Training.hasOne(models.Exercise, { foreignKey: "exercise_id" });
+    Training.hasMany(models.Workout, { foreignKey: "workout_id" });
+  };
 
   return Training;
 };

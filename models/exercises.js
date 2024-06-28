@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Exercise extends Sequelize.Model {}
   Exercise.init({
-    id: {
+    exercise_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -33,6 +33,10 @@ module.exports = (sequelize) => {
     tableName: 'exercises',
     timestamps: false,
   });
+
+  // Exercise.associate = (models) => {
+  //   Exercise.hasOne(models.Training, { foreignKey: "exercise_id" });
+  // };
 
   return Exercise;
 };

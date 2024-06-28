@@ -32,14 +32,14 @@ module.exports.updateExercisesByID = async (req, res, next) => {
 
     if (file) {
       const exercise = await db.Exercise.findOne({
-        where: { id: exerciseId },
+        where: { exercise_id: exerciseId },
       });
       await deleteObject(exercise.video_url);
       payload.video_url = file ? file.filename : null;
     }
 
     const result = await Exercise.update(payload, {
-      where: { id: exerciseId },
+      where: { exercise_id: exerciseId },
     });
     res.json(createResponse(result, "Exercise successfully updated."));
   } catch (err) {
@@ -52,7 +52,7 @@ module.exports.getExercisesByID = async (req, res, next) => {
 
   try {
     const exercise = await db.Exercise.findOne({
-      where: { id: exerciseId },
+      where: { exercise_id: exerciseId },
     });
     if (exercise.video_url) {
       exercise.video_url = await getUrl(exercise.video_url);

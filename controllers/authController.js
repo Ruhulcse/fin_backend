@@ -9,6 +9,7 @@ const { createResponse } = require("../utils/responseGenerate");
 const jwt = require("../helpers/jwt");
 const { ErrorHandler } = require("../utils/error");
 const { getUrl } = require("../middlewares/s3Upload");
+const { sendRegistrationEmail } = require("../helpers/send_email");
 
 const validateRegistrationData = (data) => {
   const requiredFields = [
@@ -29,7 +30,6 @@ const validateRegistrationData = (data) => {
   }
   return null;
 };
-
 
 module.exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
@@ -58,6 +58,14 @@ module.exports.loginUser = async (req, res, next) => {
       };
       token = await jwt.encode(payload);
     }
+
+    // Example usage
+    // const email = "2020belayethossain@gmail.com";
+    // const firstName = "John";
+    // const lastName = "Doe";
+    // const registrationUrl = "https://yourwebsite.com/complete-registration";
+
+    // await sendRegistrationEmail("2020belayethossain@gmail.com", firstName, lastName, registrationUrl);
 
     res.json(
       createResponse(

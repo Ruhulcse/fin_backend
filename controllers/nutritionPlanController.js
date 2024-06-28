@@ -89,7 +89,33 @@ module.exports.getALlNutritionPlans = async (req, res, next) => {
 
 module.exports.getALlNutritionGuides = async (req, res, next) => {
   try {
-    const nutritionGuides = [{ title: "", description: "", pdf_link: "/" }];
+    const nutritionGuides = [
+      {
+        title: "Nutrition_guide_1",
+        description: "Nutrition_guide_1",
+        pdf_link: "Assets/Nutrition_guide_1.pdf",
+      },
+      {
+        title: "Nutrition_guide_2",
+        description: "Nutrition_guide_2",
+        pdf_link: "Assets/Nutrition_guide_2.pdf",
+      },
+      {
+        title: "Nutrition_guide_3",
+        description: "Nutrition_guide_3",
+        pdf_link: "Assets/Nutrition_guide_3.pdf",
+      },
+      {
+        title: "Nutrition_guide_4",
+        description: "Nutrition_guide_4",
+        pdf_link: "Assets/Nutrition_guide_4.pdf",
+      },
+      {
+        title: "Nutrition_guide_5",
+        description: "Nutrition_guide_5",
+        pdf_link: "Assets/Nutrition_guide_5.pdf",
+      },
+    ];
     for (const guide of nutritionGuides) {
       guide.pdf_link = await getUrl(guide.pdf_link);
     }
