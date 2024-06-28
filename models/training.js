@@ -61,8 +61,8 @@ module.exports = (sequelize) => {
   });
 
   Training.associate = (models) => {
-    Training.hasOne(models.Exercise, { foreignKey: "exercise_id" });
-    Training.hasMany(models.Workout, { foreignKey: "workout_id" });
+    Training.belongsTo(models.Exercise, { foreignKey: "exercise_id" });
+    Training.belongsTo(models.Workout, { foreignKey: "workout_id" });
   };
 
   return Training;

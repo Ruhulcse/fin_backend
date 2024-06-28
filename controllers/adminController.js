@@ -29,12 +29,12 @@ module.exports.getTrainingByWorkoutID = async (req, res, next) => {
       include: [
         {
           model: db.Exercise,
-          attributes: ["area", "name"],
+          attributes: ["area", "name", "equipment", "description", "video_url"],
         },
-        // {
-        //   model: db.Workout,
-        //   attributes: ["workout_name", "workout_description"],
-        // },
+        {
+          model: db.Workout,
+          attributes: ["workout_name", "workout_description"],
+        },
       ],
     });
     if (!result || result.length === 0) {

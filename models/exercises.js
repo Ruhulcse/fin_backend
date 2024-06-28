@@ -34,9 +34,9 @@ module.exports = (sequelize) => {
     timestamps: false,
   });
 
-  // Exercise.associate = (models) => {
-  //   Exercise.hasOne(models.Training, { foreignKey: "exercise_id" });
-  // };
+  Exercise.associate = (models) => {
+    Exercise.hasOne(models.Training, { foreignKey: "exercise_id" });
+  };
 
   return Exercise;
 };
