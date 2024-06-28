@@ -45,7 +45,7 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
     });
 
     if (req.user.new_user === true) {
-      await db.Task.update(
+      await db.User.update(
         {
           new_user: false,
         },
@@ -140,7 +140,7 @@ module.exports.userWorkoutUpdate = async (req, res, next) => {
     if (task_id) {
       await db.Task.update(
         { task_status: "Finish" },
-        { where: { task_id: task_id } }
+        { where: { workout_id: workout_id } }
       );
     }
 
