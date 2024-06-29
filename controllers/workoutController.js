@@ -86,25 +86,10 @@ module.exports.getWorkoutsBYID = async (req, res, next) => {
 
 module.exports.getWorkouts = async (req, res, next) => {
   const { query } = req;
-
+  if (req.user.role === "user") query.user_id = req.user.id;
   try {
     const workouts = await db.Workout.findAll({
       where: query,
-      // include: [
-      //   {
-      //     model: db.Exercise,
-      //     attributes: [
-      //       "trainer_exp",
-      //       "sets_to_do",
-      //       "reps_to_do",
-      //       "goal_weight",
-      //       "manipulation",
-      //       "sets_done",
-      //       "reps_done",
-      //       "last_set_weight",
-      //     ],
-      //   },
-      // ],
     });
     res.json(createResponse(workouts, "Workouts successfully retrive."));
   } catch (error) {

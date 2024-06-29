@@ -2,6 +2,62 @@ const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl } = require("../middlewares/s3Upload");
+const { data } = require("../logger");
+
+// Define the tracking route
+module.exports.createMeasurement = async (req, res, next) => {
+  const {
+    user_id,
+    date,
+    weight,
+    body_fat_percentage,
+    chest,
+    waist,
+    thighr,
+    thighl,
+    armr,
+    arml,
+  } = req.body;
+  const photos = req.files;
+
+  try {
+    // Replace direct SQL query with Sequelize create method
+    const newMeasurement = await db.Measurement.create({
+      user_id,
+      date,
+      weight,
+      body_fat_percentage,
+      chest,
+      waist,
+      thighr,
+      thighl,
+      armr,
+      arml,
+      photo1: photos[0]?.filename,
+      photo2: photos[1]?.filename,
+      photo3: photos[2]?.filename,
+      photo4: photos[3]?.filename,
+    });
+
+    logger.info("New measurement added successfully");
+
+    // Update task status if task_id is provided
+    if (req.body.task_id) {
+      logger.debug("Updating task status to Finish", req.body.task_id);
+      await db.Task.update(
+        { task_status: "Finish" },
+        { where: { task_id: req.body.task_id } }
+      );
+    }
+
+    res.json(
+      createResponse(newMeasurement, "New measurement added successfully")
+    );
+  } catch (error) {
+    logger.error("Error inserting new measurement:", error);
+    next(error);
+  }
+};
 
 // Define the get tracking metrics for a user route
 module.exports.getTrackingBYUserID = async (req, res, next) => {
@@ -114,60 +170,60 @@ module.exports.createFoodEntry = async (req, res, next) => {
   }
 };
 
-// Define the tracking route
-module.exports.createMeasurement = async (req, res, next) => {
-  const {
-    user_id,
-    date,
-    weight,
-    body_fat_percentage,
-    chest,
-    waist,
-    thighr,
-    thighl,
-    armr,
-    arml,
-  } = req.body;
-  const photos = req.files;
+module.exports.generateMeasurementReport = async (req, res, next) => {
+  const XLSX = require("xlsx");
+  const fs = require("fs");
+  const path = require("path");
 
   try {
-    // Replace direct SQL query with Sequelize create method
-    const newMeasurement = await db.Measurement.create({
-      user_id,
-      date,
-      weight,
-      body_fat_percentage,
-      chest,
-      waist,
-      thighr,
-      thighl,
-      armr,
-      arml,
-      photo1: photos[0]?.filename,
-      photo2: photos[1]?.filename,
-      photo3: photos[2]?.filename,
-      photo4: photos[3]?.filename,
+    // Ensure the public directory exists
+    const publicDir = path.join("public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir);
+    }
+    const fileName = Date.now() + ".xlsx";
+    const filePath = path.join(publicDir, fileName);
+
+    const { userId } = req.params;
+    if (req.user.role === "user") userId = req.user.id;
+    const measurements = await db.Measurement.findAll({
+      where: { user_id: userId },
+    });
+    const data = [];
+    measurements.map((item) => {
+      data.push({
+        arml: item.arml,
+        armr: item.armr,
+        thighl: item.thighl,
+        thighr: item.thighr,
+        chest: item.chest,
+        waist: item.waist,
+        weight: item.weight,
+        body_fat_percentage: item.body_fat_percentage,
+        date: item.date,
+      });
     });
 
-    logger.info("New measurement added successfully");
+    // Create a new workbook and a worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
 
-    // Update task status if task_id is provided
-    if (req.body.task_id) {
-      logger.debug("Updating task status to Finish", req.body.task_id);
-      await db.Task.update(
-        { task_status: "Finish" },
-        { where: { task_id: req.body.task_id } }
-      );
-    }
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, filePath);
 
-    res.json(
-      createResponse(
-        newMeasurement,
-        "New measurement added successfully"
-      )
-    );
+    setTimeout(() => {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('Error deleting file:', err);
+        } else {
+          console.log('File deleted successfully:', filePath);
+        }
+      });
+    }, 120000);
+
+    res.json(createResponse(filePath, "Report file generated successfully."));
   } catch (error) {
-    logger.error("Error inserting new measurement:", error);
     next(error);
   }
 };
