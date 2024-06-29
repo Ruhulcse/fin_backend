@@ -235,7 +235,14 @@ module.exports.update = async (req, res, next) => {
 module.exports.findOne = async (req, res, next) => {
   try {
     const users = await User.findByPk(req.params.id, {
-      attributes: ["name", "first_name", "last_name", "gender", "email"],
+      attributes: [
+        "user_id",
+        "name",
+        "first_name",
+        "last_name",
+        "gender",
+        "email",
+      ],
       include: [
         {
           model: db.UserDetail,
