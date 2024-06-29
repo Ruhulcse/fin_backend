@@ -5,11 +5,12 @@ const { createResponse } = require("../utils/responseGenerate");
 
 // Define the get tasks for a user route
 module.exports.getTask = async (req, res, next) => {
-  logger.debug("Get tasks for user");
   const { userId } = req.params;
 
   try {
-    const tasks = await Task.findAll({ where: { user_id: userId } });
+    const tasks = await Task.findAll({
+      where: { user_id: userId, ...req.query },
+    });
     if (!tasks || tasks.length === 0) {
       res.status(404).json(createResponse(null, "Task not found."));
       return;
@@ -23,7 +24,6 @@ module.exports.getTask = async (req, res, next) => {
 
 // Define the update task status route
 module.exports.updateTask = async (req, res, next) => {
-  logger.debug("Update task status", req.body, req.params);
   const { task_status } = req.body;
   const { taskId } = req.params;
 
