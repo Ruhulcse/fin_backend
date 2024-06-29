@@ -237,10 +237,6 @@ module.exports.findOne = async (req, res, next) => {
     const users = await User.findByPk(req.params.id, {
       attributes: ["name", "first_name", "last_name", "gender", "email"],
     });
-    // delete users.dataValues.password;
-    if (users && users?.signature) {
-      users.signature = await getUrl(users.signature);
-    }
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
     logger.error("Error fetching users for admin:", error);
@@ -287,6 +283,11 @@ module.exports.getUserAgreements = async (req, res, next) => {
         },
       ],
     });
+    if (users && users.length === 1 && users[0]?.UserDetail.signature) {
+      users[0].UserDetail.signature = await getUrl(
+        users[0].UserDetail.signature
+      );
+    }
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
     logger.error("Error fetching users for admin:", error.message);
