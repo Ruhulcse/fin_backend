@@ -189,6 +189,7 @@ module.exports.register = async (req, res, next) => {
           name: newUser.name,
           id: userId,
           new_user: newUser.new_user,
+          gender: newUser.gender,
         },
         "User successfully create."
       )
@@ -250,7 +251,14 @@ module.exports.findOne = async (req, res, next) => {
 module.exports.findAll = async (req, res, next) => {
   try {
     const users = await User.findAll({
-      attributes: ["name", "first_name", "last_name", "gender", "email"],
+      attributes: [
+        "user_id",
+        "name",
+        "first_name",
+        "last_name",
+        "gender",
+        "email",
+      ],
     });
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
@@ -265,7 +273,14 @@ module.exports.getUserAgreements = async (req, res, next) => {
   try {
     const users = await User.findAll({
       where: query,
-      attributes: ["name", "first_name", "last_name", "gender", "email"],
+      attributes: [
+        "user_id",
+        "name",
+        "first_name",
+        "last_name",
+        "gender",
+        "email",
+      ],
       include: [
         {
           model: db.UserDetail,

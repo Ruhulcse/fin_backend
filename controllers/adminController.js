@@ -132,10 +132,28 @@ module.exports.insertApprovedEmail = async (req, res) => {
 module.exports.setUserNutritionPlan = async (req, res) => {
   const { body } = req;
   try {
-    const payload = body.plan_ids.map((id) => {
-      return { user_id: body.user_id, nutrition_plan_id: id };
+    const nutritionPlans = await UserNutritionPlans.findAll({
+      where: { user_id: body.user_id },
     });
-    const result = await UserNutritionPlans.bulkCreate(payload);
+    let payload = [];
+    if (!nutritionPlans) {
+      body.plan_ids.map((id) => {
+        payload.push({ user_id: body.user_id, nutrition_plan_id: id });
+      });
+    } else {
+      const nutrition_plan_ids = nutritionPlans.map(
+        (item) => item.nutrition_plan_id
+      );
+      body.plan_ids.map((id) => {
+        if (!nutrition_plan_ids.includes(id)) {
+          payload.push({ user_id: body.user_id, nutrition_plan_id: id });
+        }
+      });
+    }
+    let result = null;
+    if (payload.length > 0) {
+      result = await UserNutritionPlans.bulkCreate(payload);
+    }
     res.json(
       createResponse(result, "User Nutrition Plans Added Successfully.")
     );

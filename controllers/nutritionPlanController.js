@@ -91,26 +91,31 @@ module.exports.getALlNutritionGuides = async (req, res, next) => {
   try {
     const nutritionGuides = [
       {
+        id: 1,
         title: "Nutrition_guide_1",
         description: "Nutrition_guide_1",
         pdf_link: "Assets/Nutrition_guide_1.pdf",
       },
       {
+        id: 2,
         title: "Nutrition_guide_2",
         description: "Nutrition_guide_2",
         pdf_link: "Assets/Nutrition_guide_2.pdf",
       },
       {
+        id: 3,
         title: "Nutrition_guide_3",
         description: "Nutrition_guide_3",
         pdf_link: "Assets/Nutrition_guide_3.pdf",
       },
       {
+        id: 4,
         title: "Nutrition_guide_4",
         description: "Nutrition_guide_4",
         pdf_link: "Assets/Nutrition_guide_4.pdf",
       },
       {
+        id: 5,
         title: "Nutrition_guide_5",
         description: "Nutrition_guide_5",
         pdf_link: "Assets/Nutrition_guide_5.pdf",
