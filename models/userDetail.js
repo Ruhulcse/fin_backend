@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
     motivation_level: DataTypes.STRING,
     commitment_declaration: DataTypes.STRING,
     additional_notes: DataTypes.STRING,
-    health_declaration: DataTypes.STRING,
+    health_declaration: DataTypes.STRING(1000),
     signature: DataTypes.STRING,
     terms_accepted: DataTypes.BOOLEAN,
     mailing_accepted: DataTypes.BOOLEAN,

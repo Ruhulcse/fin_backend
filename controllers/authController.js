@@ -233,8 +233,10 @@ module.exports.update = async (req, res, next) => {
 
 module.exports.findOne = async (req, res, next) => {
   try {
-    const users = await User.findByPk(req.params.id);
-    delete users.dataValues.password;
+    const users = await User.findByPk(req.params.id, {
+      attributes: ["name", "first_name", "last_name", "gender", "email"],
+    });
+    // delete users.dataValues.password;
     if (users && users?.signature) {
       users.signature = await getUrl(users.signature);
     }
@@ -247,7 +249,29 @@ module.exports.findOne = async (req, res, next) => {
 
 module.exports.findAll = async (req, res, next) => {
   try {
-    const users = await User.findAll({});
+    const users = await User.findAll({
+      attributes: ["name", "first_name", "last_name", "gender", "email"],
+    });
+    res.json(createResponse(users, "User successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching users for admin:", error.message);
+    next(error);
+  }
+};
+
+module.exports.getUserAgreements = async (req, res, next) => {
+  const { query } = req;
+  if (req.user.role === "user") query.user_id = req.user.id;
+  try {
+    const users = await User.findAll({
+      where: query,
+      attributes: ["name", "first_name", "last_name", "gender", "email"],
+      include: [
+        {
+          model: db.UserDetail,
+        },
+      ],
+    });
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
     logger.error("Error fetching users for admin:", error.message);
@@ -322,7 +346,7 @@ module.exports.updateUserDetials = async (req, res, next) => {
       motivation_level: data.motivation_level,
       commitment_declaration: data.commitment_declaration,
       additional_notes: data.additional_notes,
-      health_declaration: data.health_declaration,
+      health_declaration: body.health_declaration,
       signature,
       terms_accepted: data.termsAccepted,
       mailing_accepted: data.mailingAccepted,

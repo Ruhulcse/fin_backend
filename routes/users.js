@@ -9,6 +9,7 @@ const {
   generateAssetUrl,
   updateUserDetials,
   registerWithGoogle,
+  getUserAgreements,
 } = require("../controllers/authController");
 const { putObject } = require("../middlewares/s3Upload");
 const { upload } = require("../middlewares/imageUpload");
@@ -22,6 +23,7 @@ router.post("/api/users/generate-asset-url", generateAssetUrl);
 router.put("/api/users/update-status/:id",  update);
 router.put("/api/users/update-details/:id", upload.single("file"), putObject, updateUserDetials);
 router.get("/api/users", findAll);
+router.get("/api/users/agreements", getUserAgreements);
 router.get("/api/users/:id", findOne);
 
 module.exports = router;
