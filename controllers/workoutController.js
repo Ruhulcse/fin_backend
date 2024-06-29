@@ -101,7 +101,7 @@ module.exports.getWorkouts = async (req, res, next) => {
 
 // Define the save workout data route
 module.exports.userWorkoutUpdate = async (req, res, next) => {
-  const { workout_id, task_id, exercises } = req.body;
+  const { workout_id, exercises } = req.body;
 
   try {
     for (const exercise of exercises) {
@@ -122,18 +122,16 @@ module.exports.userWorkoutUpdate = async (req, res, next) => {
       { where: { workout_id: workout_id } }
     );
 
-    if (task_id) {
-      await db.Task.update(
-        { task_status: "Finish" },
-        { where: { workout_id: workout_id } }
-      );
-    }
+    await db.Task.update(
+      { task_status: "Finish" },
+      { where: { workout_id: workout_id } }
+    );
 
     res.json(createResponse(null, "Workout successfully updated."));
   } catch (error) {
     logger.error(
       "Error saving workout data for workout ID:",
-      workoutId,
+      workout_id,
       error.message
     );
     // res.status(500).json({ error: "Failed to save workout data" });
