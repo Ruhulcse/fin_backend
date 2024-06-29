@@ -18,6 +18,7 @@
     "tracking": ["POST","GET", "PUT"],
     "tasks": ["GET", "PUT"],
     "exercises": ["GET"],
-    "nutrition-plans": ["GET"]
+    "nutrition-plans": ["GET"],
+    "admin": ["GET"]
   }
 }
