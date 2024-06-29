@@ -43,8 +43,11 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       task_description: workout_description,
       workout_id: newWorkoutId,
     });
-
-    if (req.user.new_user === true) {
+    const user = await User.findOne({ where: { user_id },attributes: [
+      "user_id",
+      "new_user",
+    ] });
+    if (user.new_user === true) {
       await db.User.update(
         {
           new_user: false,

@@ -54,6 +54,7 @@ module.exports.loginUser = async (req, res, next) => {
         role: user.role,
         gender: user.gender,
         status: user.status,
+        new_user: user.new_user,
         exp: Math.floor(Date.now() / 100) + 60 * 60,
       };
       token = await jwt.encode(payload);
