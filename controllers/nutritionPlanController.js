@@ -126,13 +126,14 @@ module.exports.getALlNutritionGuides = async (req, res, next) => {
       guide.pdf_link = await getUrl(guide.pdf_link);
 
       res.json(createResponse(guide, "NutritionGuides successfully retrive."));
+    } else {
+      for (const guide of nutritionGuides) {
+        guide.pdf_link = await getUrl(guide.pdf_link);
+      }
+      res.json(
+        createResponse(nutritionGuides, "NutritionGuides successfully retrive.")
+      );
     }
-    for (const guide of nutritionGuides) {
-      guide.pdf_link = await getUrl(guide.pdf_link);
-    }
-    res.json(
-      createResponse(nutritionGuides, "NutritionGuides successfully retrive.")
-    );
   } catch (error) {
     logger.error("Error fetching nutrition plan:", error.message);
     next(error);
