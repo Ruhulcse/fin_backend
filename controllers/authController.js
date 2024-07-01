@@ -40,7 +40,9 @@ module.exports.loginUser = async (req, res, next) => {
       // throw new ErrorHandler("User unauthorized!.", 401);
       return;
     }
-    const verifyPass = await hash.verify(password, user.password);
+    const userPass =
+      req.body.login_type === "google" ? user.google_password : user.password;
+    const verifyPass = await hash.verify(password, userPass);
     if (!verifyPass) {
       res.json(createResponse(null, "User info invalid!."));
       return;
@@ -95,7 +97,13 @@ module.exports.register = async (req, res, next) => {
   }
   if (body.password) {
     const hashPass = await hash.new(body.password);
-    body.password = hashPass;
+    if (body?.login_type === "google") {
+      body.google_password = hashPass;
+      body.password = "";
+    } else {
+      body.google_password = "";
+      body.password = hashPass;
+    }
   }
   try {
     const checkApprovedMail = await ApprovedEmail.findOne({
@@ -109,23 +117,26 @@ module.exports.register = async (req, res, next) => {
       );
     }
     const isExist = await User.findOne({ where: { email: body.email } });
+    let newUser;
     if (isExist) {
       console.log("User is already existed.");
       throw new ErrorHandler("User is already existed.", 409);
+    } else {
+      newUser = await User.create({
+        first_name: body.first_name,
+        last_name: body.last_name,
+        name: body.name,
+        email: body.email,
+        gender: body.gender,
+        password: body.password,
+        google_password: body.google_password,
+        role: "user",
+        status: body.status || "inactive", // Set status if provided, otherwise null
+        // due_date: body.due_date || null, // Set due_date if provided, otherwise null
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
     }
-    const newUser = await User.create({
-      first_name: body.first_name,
-      last_name: body.last_name,
-      name: body.name,
-      email: body.email,
-      gender: body.gender,
-      password: body.password,
-      role: "user",
-      status: body.status || "inactive", // Set status if provided, otherwise null
-      // due_date: body.due_date || null, // Set due_date if provided, otherwise null
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
     const userId = newUser.user_id;
     const tasks = [
       {
@@ -191,6 +202,7 @@ module.exports.register = async (req, res, next) => {
           id: userId,
           new_user: newUser.new_user,
           gender: newUser.gender,
+          role: newUser.role,
         },
         "User successfully create."
       )
@@ -205,8 +217,10 @@ module.exports.registerWithGoogle = async (req, res, next) => {
   try {
     const isExist = await User.findOne({ where: { email: body.email } });
     if (isExist) {
+      req.body.login_type = "google";
       return await this.loginUser(req, res, next);
     } else {
+      req.body.login_type = "google";
       return await this.register(req, res, next);
     }
   } catch (err) {
