@@ -121,6 +121,12 @@ module.exports.getALlNutritionGuides = async (req, res, next) => {
         pdf_link: "Assets/Nutrition_guide_5.pdf",
       },
     ];
+    if (req.query.id) {
+      const guide = nutritionGuides[req.query.id - 1];
+      guide.pdf_link = await getUrl(guide.pdf_link);
+
+      res.json(createResponse(guide, "NutritionGuides successfully retrive."));
+    }
     for (const guide of nutritionGuides) {
       guide.pdf_link = await getUrl(guide.pdf_link);
     }
