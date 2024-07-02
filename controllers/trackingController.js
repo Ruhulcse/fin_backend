@@ -86,7 +86,7 @@ module.exports.getMeasurementBYUserID = async (req, res, next) => {
   try {
     const latestMeasurement = await db.Measurement.findOne({
       where: { user_id: userId },
-      order: [["date", "DESC"]],
+      order: [["measurement_id", "DESC"]],
     });
     if (latestMeasurement.photo1) {
       latestMeasurement.photo1 = await getUrl(latestMeasurement.photo1);
