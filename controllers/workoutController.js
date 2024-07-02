@@ -43,7 +43,7 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       task_description: workout_description,
       workout_id: newWorkoutId,
     });
-    const user = await User.findOne({ where: { user_id },attributes: [
+    const user = await db.User.findOne({ where: { user_id },attributes: [
       "user_id",
       "new_user",
     ] });
