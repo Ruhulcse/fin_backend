@@ -3,6 +3,7 @@ const User = db.User;
 const UserDetail = db.UserDetail;
 const Task = db.Task;
 const ApprovedEmail = db.ApprovedEmail;
+const { Op } = require("sequelize");
 const logger = require("../logger");
 const hash = require("../helpers/password_hash");
 const { createResponse } = require("../utils/responseGenerate");
@@ -272,8 +273,33 @@ module.exports.findOne = async (req, res, next) => {
 };
 
 module.exports.findAll = async (req, res, next) => {
+  let { query } = req;
+  if (query.search) {
+    const { search, ...restQuery } = query;
+    query = {
+      ...restQuery,
+      [Op.or]: [
+        {
+          name: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        {
+          email: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        {
+          gender: {
+            [Op.like]: `%${search}%`
+          }
+        }
+      ]
+    };
+  }
   try {
     const users = await User.findAll({
+      where: query,
       attributes: [
         "user_id",
         "name",

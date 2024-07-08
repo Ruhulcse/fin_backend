@@ -1,5 +1,6 @@
 const db = require("../models");
 const logger = require("../logger");
+const { Op } = require("sequelize");
 const Exercise = db.Exercise;
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl, deleteObject } = require("../middlewares/s3Upload");
@@ -65,8 +66,30 @@ module.exports.getExercisesByID = async (req, res, next) => {
 };
 
 module.exports.getAllExercises = async (req, res, next) => {
-  const { query, user } = req;
-
+  let { query } = req;
+  if (query.search) {
+    const { search, ...restQuery } = query;
+    query = {
+      ...restQuery,
+      [Op.or]: [
+        {
+          area: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        {
+          name: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        {
+          description: {
+            [Op.like]: `%${search}%`
+          }
+        }
+      ]
+    };
+  }
   try {
     const exercise = await db.Exercise.findAll({
       where: { ...query },

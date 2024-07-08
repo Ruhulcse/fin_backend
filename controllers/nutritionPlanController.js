@@ -17,6 +17,9 @@ module.exports.createNutritionPlans = async (req, res, next) => {
       description,
       pdf_link: nutritionPlan_pdf,
     });
+    if (req.body.user_id) {
+      await db.UserNutritionPlans.create({ user_id: req.body.user_id, nutrition_plan_id: result.id });
+    }
     res.json(createResponse(result, "NutritionPlan successfully created."));
   } catch (err) {
     next(err);

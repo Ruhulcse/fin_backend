@@ -1,6 +1,7 @@
 const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
+const { Op } = require("sequelize");
 
 module.exports.createWorkoutForUser = async (req, res, next) => {
   const {
@@ -12,12 +13,24 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
     training,
   } = req.body;
   try {
-    const workoutResult = await db.Workout.create({
+    const payload = {
       user_id,
       workout_name: workout_name,
       workout_description: workout_description,
       status: "pending",
+    };
+    const workouts = await db.Workout.findAll({
+      where: {
+        workout_name: {
+          [Op.like]: `${workout_name}%`,
+        },
+      },
     });
+    if (workouts && workouts.length > 0) {
+      payload.workout_name = workout_name + (workouts.length + 1);
+    }
+
+    const workoutResult = await db.Workout.create(payload);
     const newWorkoutId = workoutResult.dataValues.workout_id;
 
     for (const entry of training) {
@@ -43,10 +56,10 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       task_description: workout_description,
       workout_id: newWorkoutId,
     });
-    const user = await db.User.findOne({ where: { user_id },attributes: [
-      "user_id",
-      "new_user",
-    ] });
+    const user = await db.User.findOne({
+      where: { user_id },
+      attributes: ["user_id", "new_user"],
+    });
     if (user.new_user === true) {
       await db.User.update(
         {
@@ -88,8 +101,26 @@ module.exports.getWorkoutsBYID = async (req, res, next) => {
 };
 
 module.exports.getWorkouts = async (req, res, next) => {
-  const { query } = req;
+  let { query } = req;
   if (req.user.role === "user") query.user_id = req.user.id;
+  if (query.search) {
+    const { search, ...restQuery } = query;
+    query = {
+      ...restQuery,
+      [Op.or]: [
+        {
+          workout_name: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        {
+          workout_description: {
+            [Op.like]: `%${search}%`
+          }
+        }
+      ]
+    };
+  }
   try {
     const workouts = await db.Workout.findAll({
       where: query,
