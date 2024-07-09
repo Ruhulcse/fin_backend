@@ -10,7 +10,7 @@ const { createResponse } = require("../utils/responseGenerate");
 const jwt = require("../helpers/jwt");
 const { ErrorHandler } = require("../utils/error");
 const { getUrl } = require("../middlewares/s3Upload");
-const { sendRegistrationEmail } = require("../helpers/send_email");
+const { sendMail } = require("../helpers/mail");
 
 const validateRegistrationData = (data) => {
   const requiredFields = [
@@ -62,14 +62,6 @@ module.exports.loginUser = async (req, res, next) => {
       };
       token = await jwt.encode(payload);
     }
-
-    // Example usage
-    // const email = "2020belayethossain@gmail.com";
-    // const firstName = "John";
-    // const lastName = "Doe";
-    // const registrationUrl = "https://yourwebsite.com/complete-registration";
-
-    // await sendRegistrationEmail("2020belayethossain@gmail.com", firstName, lastName, registrationUrl);
 
     res.json(
       createResponse(
@@ -194,6 +186,15 @@ module.exports.register = async (req, res, next) => {
       };
       token = await jwt.encode(payload);
     }
+
+    //send mail
+    const mailOptions = {
+      to: newUser.email,
+      subject: `Welcome to BasisTraining`,
+      html: `<h2>Thank you for registering with BasisTraining.</h2>`,
+    };
+    await sendMail(mailOptions);
+    
     res.json(
       createResponse(
         {
@@ -281,20 +282,20 @@ module.exports.findAll = async (req, res, next) => {
       [Op.or]: [
         {
           name: {
-            [Op.like]: `%${search}%`
-          }
+            [Op.like]: `%${search}%`,
+          },
         },
         {
           email: {
-            [Op.like]: `%${search}%`
-          }
+            [Op.like]: `%${search}%`,
+          },
         },
         {
           gender: {
-            [Op.like]: `%${search}%`
-          }
-        }
-      ]
+            [Op.like]: `%${search}%`,
+          },
+        },
+      ],
     };
   }
   try {

@@ -2,6 +2,7 @@ const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
 const { Op } = require("sequelize");
+const { sendMail } = require("../helpers/mail");
 
 module.exports.createWorkoutForUser = async (req, res, next) => {
   const {
@@ -48,7 +49,7 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       });
     }
 
-    await db.Task.create({
+    const task = await db.Task.create({
       user_id,
       task_name: workout_name,
       task_status: "Pending",
@@ -56,9 +57,10 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       task_description: workout_description,
       workout_id: newWorkoutId,
     });
+
     const user = await db.User.findOne({
       where: { user_id },
-      attributes: ["user_id", "new_user"],
+      attributes: ["user_id", "new_user", "email"],
     });
     if (user.new_user === true) {
       await db.User.update(
@@ -68,6 +70,24 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
         { where: { user_id } }
       );
     }
+
+    if (task) {
+      //send mail for task
+      const mailOptions = {
+        to: user.email,
+        subject: `New Task Assigned`,
+        html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
+      };
+      await sendMail(mailOptions);
+    }
+
+    //send mail workout
+    const mailOptions = {
+      to: user.email,
+      subject: `New Workout Added`,
+      html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
+    };
+    await sendMail(mailOptions);
     res.json(
       createResponse(
         { workout_id: newWorkoutId },
@@ -110,15 +130,15 @@ module.exports.getWorkouts = async (req, res, next) => {
       [Op.or]: [
         {
           workout_name: {
-            [Op.like]: `%${search}%`
-          }
+            [Op.like]: `%${search}%`,
+          },
         },
         {
           workout_description: {
-            [Op.like]: `%${search}%`
-          }
-        }
-      ]
+            [Op.like]: `%${search}%`,
+          },
+        },
+      ],
     };
   }
   try {
