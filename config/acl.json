@@ -10,6 +10,17 @@
     "exercises": ["*"],
     "nutrition-plans": ["*"]
   },
+  "trainer": {
+    "signup": ["*"],
+    "reset-password": ["*"],
+    "users": ["*"],
+    "admin": ["*"],
+    "workouts": ["*"],
+    "tracking": ["*"],
+    "tasks": ["*"],
+    "exercises": ["*"],
+    "nutrition-plans": ["*"]
+  },
   "user": {
     "signup": ["*"],
     "reset-password": ["*"],
