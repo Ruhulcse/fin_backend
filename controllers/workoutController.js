@@ -192,3 +192,27 @@ module.exports.userWorkoutUpdate = async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports.updateWorkoutsBYID = async (req, res, next) => {
+  const { body, params } = req;
+
+  try {
+    await db.Workout.update(
+      {
+        workout_name: body.workout_name,
+        workout_description: body.workout_description,
+      },
+      { where: { workout_id: params.id } }
+    );
+
+    res.json(createResponse(null, "Workout successfully updated."));
+  } catch (error) {
+    logger.error(
+      "Error saving workout data for workout ID:",
+      workout_id,
+      error.message
+    );
+    // res.status(500).json({ error: "Failed to save workout data" });
+    next(error);
+  }
+};
