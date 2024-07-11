@@ -87,26 +87,40 @@ module.exports.deleteTrainingByID = async (req, res, next) => {
 };
 
 module.exports.updateTrainingByID = async (req, res, next) => {
-  logger.debug("Update training by ID:", req.params.trainingId);
-  const { trainingId } = req.params;
   const { body } = req;
-
   try {
-    const training = await Training.update(
-      {
-        exercise_id: body.exercise_id,
-        sets_to_do: body.sets_to_do,
-        reps_to_do: body.reps_to_do,
-        goal_weight: body.goal_weight,
-        manipulation: body.manipulation,
-      },
-      {
-        where: {
-          training_id: trainingId,
-        },
+    for (const item of body) {
+      if (item.training_id) {
+        await Training.update(
+          {
+            exercise_id: item.exercise_id,
+            sets_to_do: item.sets_to_do,
+            reps_to_do: item.reps_to_do,
+            goal_weight: item.goal_weight,
+            manipulation: item.manipulation,
+          },
+          {
+            where: {
+              training_id: item.training_id,
+            },
+          }
+        );
+      } else {
+        await db.Training.create({
+          workout_id: item.workout_id,
+          exercise_id: item.exercise_id,
+          trainer_exp: item.trainer_exp,
+          sets_to_do: item.sets_to_do,
+          reps_to_do: item.reps_to_do,
+          goal_weight: item.goal_weight,
+          manipulation: item.manipulation,
+          sets_done: 0,
+          reps_done: 0,
+          last_set_weight: 0,
+        });
       }
-    );
-    res.json(createResponse(training, "Training updated successfully"));
+    }
+    res.json(createResponse(null, "Training updated successfully"));
   } catch (error) {
     logger.error("Error updating training with ID:", trainingId, error.message);
     next(error);
