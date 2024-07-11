@@ -124,7 +124,7 @@ module.exports.register = async (req, res, next) => {
         password: body.password,
         google_password: body.google_password,
         role: "user",
-        status: body.status || "active", // Set status if provided, otherwise null
+        status: body.status ?? "active", // Set status if provided, otherwise null
         // due_date: body.due_date || null, // Set due_date if provided, otherwise null
         createdAt: new Date(),
         updatedAt: new Date(),
