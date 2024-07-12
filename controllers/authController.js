@@ -234,6 +234,7 @@ module.exports.update = async (req, res, next) => {
   const { body, params } = req;
   const payload = { updatedAt: new Date() };
   if (body.gender) payload.gender = body.gender;
+  if (body.role) payload.role = body.role;
   if (body.status) payload.status = body.status;
   if (body.new_user) payload.new_user = body.new_user;
   try {
