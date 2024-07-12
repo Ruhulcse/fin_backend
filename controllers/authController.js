@@ -3,7 +3,7 @@ const User = db.User;
 const UserDetail = db.UserDetail;
 const Task = db.Task;
 const ApprovedEmail = db.ApprovedEmail;
-const { Op } = require("sequelize");
+const { Op, col, fn, where } = require("sequelize");
 const logger = require("../logger");
 const hash = require("../helpers/password_hash");
 const { createResponse } = require("../utils/responseGenerate");
@@ -194,7 +194,7 @@ module.exports.register = async (req, res, next) => {
       html: `<h2>Thank you for registering with BasisTraining.</h2>`,
     };
     await sendMail(mailOptions);
-    
+
     res.json(
       createResponse(
         {
@@ -280,21 +280,15 @@ module.exports.findAll = async (req, res, next) => {
     query = {
       ...restQuery,
       [Op.or]: [
-        {
-          name: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-        {
-          email: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-        {
-          gender: {
-            [Op.like]: `%${search}%`,
-          },
-        },
+        where(fn("LOWER", col("name")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
+        where(fn("LOWER", col("email")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
+        where(fn("LOWER", col("gender")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
       ],
     };
   }

@@ -1,6 +1,6 @@
 const db = require("../models");
 const logger = require("../logger");
-const { Op } = require("sequelize");
+const { Op, col, fn, where } = require("sequelize");
 const Exercise = db.Exercise;
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl, deleteObject } = require("../middlewares/s3Upload");
@@ -72,21 +72,18 @@ module.exports.getAllExercises = async (req, res, next) => {
     query = {
       ...restQuery,
       [Op.or]: [
-        {
-          area: {
-            [Op.like]: `%${search}%`
-          }
-        },
-        {
-          name: {
-            [Op.like]: `%${search}%`
-          }
-        },
-        {
-          description: {
-            [Op.like]: `%${search}%`
-          }
-        }
+        where(fn('LOWER', col('area')), {
+          [Op.like]: `%${search.toLowerCase()}%`
+        }),
+        where(fn('LOWER', col('name')), {
+          [Op.like]: `%${search.toLowerCase()}%`
+        }),
+        where(fn('LOWER', col('description')), {
+          [Op.like]: `%${search.toLowerCase()}%`
+        }),
+        where(fn('LOWER', col('equipment')), {
+          [Op.like]: `%${search.toLowerCase()}%`
+        })
       ]
     };
   }

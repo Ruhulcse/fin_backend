@@ -1,7 +1,7 @@
 const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
-const { Op } = require("sequelize");
+const { Op, col, fn, where } = require("sequelize");
 const { sendMail } = require("../helpers/mail");
 
 module.exports.createWorkoutForUser = async (req, res, next) => {
@@ -127,18 +127,15 @@ module.exports.getWorkouts = async (req, res, next) => {
     const { search, ...restQuery } = query;
     query = {
       ...restQuery,
-      [Op.or]: [
-        {
-          workout_name: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-        {
-          workout_description: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-      ],
+      [Op.or]: 
+      [
+        where(fn('LOWER', col('workout_name')), {
+          [Op.like]: `%${search.toLowerCase()}%`
+        }),
+        where(fn('LOWER', col('workout_description')), {
+          [Op.like]: `%${search.toLowerCase()}%`
+        })
+      ]
     };
   }
   try {
