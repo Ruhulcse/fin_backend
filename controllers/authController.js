@@ -308,8 +308,6 @@ module.exports.findAll = async (req, res, next) => {
         "last_name",
         "gender",
         "email",
-        "role",
-        "status",
       ],
     });
     res.json(createResponse(users, "User successfully retrive."));
