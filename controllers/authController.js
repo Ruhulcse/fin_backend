@@ -11,6 +11,7 @@ const jwt = require("../helpers/jwt");
 const { ErrorHandler } = require("../utils/error");
 const { getUrl } = require("../middlewares/s3Upload");
 const { sendMail } = require("../helpers/mail");
+// const { sendEmail } = require("../helpers/mailchimp");
 
 const validateRegistrationData = (data) => {
   const requiredFields = [
@@ -62,7 +63,7 @@ module.exports.loginUser = async (req, res, next) => {
       };
       token = await jwt.encode(payload);
     }
-
+    // await sendEmail();
     res.json(
       createResponse(
         {

@@ -6,6 +6,7 @@ const {
   createMeasurement,
   getTrackingBYID,
   generateMeasurementReport,
+  generateTraningHistoryReport,
 } = require("../controllers/trackingController");
 const { putObject } = require("../middlewares/s3Upload");
 const { upload } = require("../middlewares/imageUpload");
@@ -20,6 +21,7 @@ router.get("/api/tracking/:id", getTrackingBYID);
 router.get("/api/tracking/user/:userId", getTrackingBYUserID);
 router.get("/api/tracking/latest-measurement/:userId", getMeasurementBYUserID);
 router.post("/api/tracking/food-entry", createFoodEntry);
-router.post("/api/tracking/report/:userId", generateMeasurementReport);
+router.post("/api/tracking/measurement-report/:userId", generateMeasurementReport);
+router.post("/api/tracking/traning-report/:userId", generateTraningHistoryReport);
 
 module.exports = router;

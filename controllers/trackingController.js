@@ -2,7 +2,7 @@ const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl } = require("../middlewares/s3Upload");
-const { data } = require("../logger");
+const { Op } = require("sequelize");
 
 // Define the tracking route
 module.exports.createMeasurement = async (req, res, next) => {
@@ -192,15 +192,15 @@ module.exports.generateMeasurementReport = async (req, res, next) => {
     const data = [];
     measurements.map((item) => {
       data.push({
-        arml: item.arml,
-        armr: item.armr,
-        thighl: item.thighl,
-        thighr: item.thighr,
-        chest: item.chest,
-        waist: item.waist,
-        weight: item.weight,
-        body_fat_percentage: item.body_fat_percentage,
-        date: item.date,
+        Arml: item.arml,
+        Armr: item.armr,
+        Thighl: item.thighl,
+        Thighr: item.thighr,
+        Chest: item.chest,
+        Waist: item.waist,
+        Weight: item.weight,
+        "Body Fat Percentage": item.body_fat_percentage,
+        Date: item.date,
       });
     });
 
@@ -215,9 +215,89 @@ module.exports.generateMeasurementReport = async (req, res, next) => {
     setTimeout(() => {
       fs.unlink(filePath, (err) => {
         if (err) {
-          console.error('Error deleting file:', err);
+          console.error("Error deleting file:", err);
         } else {
-          console.log('File deleted successfully:', filePath);
+          console.log("File deleted successfully:", filePath);
+        }
+      });
+    }, 120000);
+
+    res.json(createResponse(filePath, "Report file generated successfully."));
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.generateTraningHistoryReport = async (req, res, next) => {
+  const XLSX = require("xlsx");
+  const fs = require("fs");
+  const path = require("path");
+
+  try {
+    // Ensure the public directory exists
+    const publicDir = path.join("public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir);
+    }
+    const fileName = Date.now() + ".xlsx";
+    const filePath = path.join(publicDir, fileName);
+
+    const { query } = req;
+    if (req.user.role === "user") query.user_id = req.user.id;
+    const workouts = await db.Workout.findAll({
+      where: query,
+      attributes: ["workout_id"],
+    });
+
+    const tranings = await db.Training.findAll({
+      where: {
+        workout_id: {
+          [Op.in]: workouts.map((item) => item.workout_id),
+        },
+      },
+      include: [
+        {
+          model: db.Exercise,
+          attributes: ["area", "name", "equipment", "description", "video_url"],
+        },
+        {
+          model: db.Workout,
+          attributes: ["workout_name", "workout_description"],
+        },
+      ],
+    });
+
+    const data = [];
+    for (const item of tranings) {
+      data.push({
+        "Traning Date": item.updatedAt,
+        "Weight Done": item.last_set_weight,
+        "Reps Done": item.reps_done,
+        "Sets Done": item.sets_done,
+        "Goal Weight": item.goal_weight,
+        "Sets Target": item.sets_to_do,
+        "Reps Target": item.reps_to_do,
+        Manipulation: item.manipulation,
+        Workout: item.Workout.workout_name,
+        Exercise: item.Exercise.name,
+        "Video Url": await getUrl(item.Exercise.video_url),
+      });
+    }
+
+    // Create a new workbook and a worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, filePath);
+
+    setTimeout(() => {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        } else {
+          console.log("File deleted successfully:", filePath);
         }
       });
     }, 120000);
