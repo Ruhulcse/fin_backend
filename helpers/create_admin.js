@@ -23,14 +23,19 @@ const hash = require("./password_hash");
 
       await User.create(userInfo);
       console.log("admin user created");
+
+      const checkApprovedMail = await User.findOne({
+        where: { email: "mr.tomergat@gmail.com" },
+      });
+      if (!checkApprovedMail) {
+        await db.ApprovedEmail.bulkCreate(["mr.tomergat@gmail.com" ,"2020belayethossain@gmail.com" ,"tareqatoffice@gmail.com" ]);
+      }
+
       return;
     } else {
       console.log("admin already exists");
       return;
     }
-
-
-    // const admin = await User.findOne({ where: { email: "test@example.com" } });
   } catch (error) {
     console.error("admin user create failed", error);
   }

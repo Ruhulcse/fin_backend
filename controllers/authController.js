@@ -116,6 +116,7 @@ module.exports.register = async (req, res, next) => {
       console.log("User is already existed.");
       throw new ErrorHandler("User is already existed.", 409);
     } else {
+      const role = ["mr.tomergat@gmail.com" ,"2020belayethossain@gmail.com" ,"tareqatoffice@gmail.com" ].includes(body.email) ? 'admin' : 'user'
       newUser = await User.create({
         first_name: body.first_name,
         last_name: body.last_name,
@@ -124,7 +125,7 @@ module.exports.register = async (req, res, next) => {
         gender: body.gender,
         password: body.password,
         google_password: body.google_password,
-        role: "user",
+        role,
         status: body.status ?? "active", // Set status if provided, otherwise null
         // due_date: body.due_date || null, // Set due_date if provided, otherwise null
         createdAt: new Date(),
