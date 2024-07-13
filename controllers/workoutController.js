@@ -127,15 +127,14 @@ module.exports.getWorkouts = async (req, res, next) => {
     const { search, ...restQuery } = query;
     query = {
       ...restQuery,
-      [Op.or]: 
-      [
-        where(fn('LOWER', col('workout_name')), {
-          [Op.like]: `%${search.toLowerCase()}%`
+      [Op.or]: [
+        where(fn("LOWER", col("workout_name")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
         }),
-        where(fn('LOWER', col('workout_description')), {
-          [Op.like]: `%${search.toLowerCase()}%`
-        })
-      ]
+        where(fn("LOWER", col("workout_description")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
+      ],
     };
   }
   try {
@@ -145,6 +144,73 @@ module.exports.getWorkouts = async (req, res, next) => {
     res.json(createResponse(workouts, "Workouts successfully retrive."));
   } catch (error) {
     logger.error("Error fetching workouts:", error.message);
+    // res.status(500).json({ error: "Database error" });
+    next(error);
+  }
+};
+
+module.exports.getTrainingByUserId = async (req, res, next) => {
+  let { query } = req;
+  if (req.user.role === "user") query.user_id = req.user.id;
+  if (query.search) {
+    const { search, ...restQuery } = query;
+    query = {
+      ...restQuery,
+      [Op.or]: [
+        where(fn("LOWER", col("workout_name")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
+        where(fn("LOWER", col("workout_description")), {
+          [Op.like]: `%${search.toLowerCase()}%`,
+        }),
+      ],
+    };
+  }
+  try {
+    const { query } = req;
+    if (req.user.role === "user") query.user_id = req.user.id;
+    const workouts = await db.Workout.findAll({
+      where: { user_id: req.params.userId },
+      attributes: ["workout_id"],
+    });
+
+    const tranings = await db.Training.findAll({
+      where: {
+        workout_id: {
+          [Op.in]: workouts.map((item) => item.workout_id),
+        },
+      },
+      include: [
+        {
+          model: db.Exercise,
+          attributes: ["area", "name", "equipment", "description", "video_url"],
+        },
+        {
+          model: db.Workout,
+          attributes: ["workout_name", "workout_description"],
+        },
+      ],
+      order: [["updatedAt", "DESC"]],
+    });
+
+    const data = [];
+    for (const item of tranings) {
+      data.push({
+        "Traning Date": item.updatedAt,
+        "Weight Done": item.last_set_weight,
+        "Reps Done": item.reps_done,
+        "Sets Done": item.sets_done,
+        "Goal Weight": item.goal_weight,
+        "Sets Target": item.sets_to_do,
+        "Reps Target": item.reps_to_do,
+        Manipulation: item.manipulation,
+        Workout: item.Workout.workout_name,
+        Exercise: item.Exercise.name,
+      });
+    }
+    res.json(createResponse(data, "Training successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching Training:", error.message);
     // res.status(500).json({ error: "Database error" });
     next(error);
   }

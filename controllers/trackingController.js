@@ -119,18 +119,19 @@ module.exports.getTrackingBYID = async (req, res, next) => {
 
   try {
     const measurement = await db.Measurement.findByPk(req.params.id);
-
-    if (measurement.photo1) {
-      measurement.photo1 = await getUrl(measurement.photo1);
-    }
-    if (measurement.photo2) {
-      measurement.photo2 = await getUrl(measurement.photo2);
-    }
-    if (measurement.photo3) {
-      measurement.photo3 = await getUrl(measurement.photo3);
-    }
-    if (measurement.photo4) {
-      measurement.photo4 = await getUrl(measurement.photo4);
+    if (measurement) {
+      if (measurement.photo1) {
+        measurement.photo1 = await getUrl(measurement.photo1);
+      }
+      if (measurement.photo2) {
+        measurement.photo2 = await getUrl(measurement.photo2);
+      }
+      if (measurement.photo3) {
+        measurement.photo3 = await getUrl(measurement.photo3);
+      }
+      if (measurement.photo4) {
+        measurement.photo4 = await getUrl(measurement.photo4);
+      }
     }
     res.json(createResponse(measurement, "Measurement successfully retrive."));
   } catch (error) {
