@@ -228,7 +228,7 @@ module.exports.generateMeasurementReport = async (req, res, next) => {
   }
 };
 
-module.exports.generateTraningHistoryReport = async (req, res, next) => {
+module.exports.generateTrainingHistoryReport = async (req, res, next) => {
   const XLSX = require("xlsx");
   const fs = require("fs");
   const path = require("path");
