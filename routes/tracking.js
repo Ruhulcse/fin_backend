@@ -21,7 +21,7 @@ router.get("/api/tracking/:id", getTrackingBYID);
 router.get("/api/tracking/user/:userId", getTrackingBYUserID);
 router.get("/api/tracking/latest-measurement/:userId", getMeasurementBYUserID);
 router.post("/api/tracking/food-entry", createFoodEntry);
-router.post("/api/tracking/measurement-report/:userId", generateMeasurementReport);
-router.post("/api/tracking/training-report/:userId", generateTrainingHistoryReport);
+router.post("/api/tracking/measurement-report", generateMeasurementReport);
+router.post("/api/tracking/training-report", generateTrainingHistoryReport);
 
 module.exports = router;

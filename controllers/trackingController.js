@@ -184,10 +184,10 @@ module.exports.generateMeasurementReport = async (req, res, next) => {
     const fileName = Date.now() + ".xlsx";
     const filePath = path.join(publicDir, fileName);
 
-    const { userId } = req.params;
-    if (req.user.role === "user") userId = req.user.id;
+    const { query } = req;
+    if (req.user.role === "user") query.user_id = req.user.id;
     const measurements = await db.Measurement.findAll({
-      where: { user_id: userId },
+      where: query,
     });
     const data = [];
     measurements.map((item) => {

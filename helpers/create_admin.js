@@ -28,6 +28,9 @@ const hash = require("./password_hash");
       console.log("admin already exists");
       return;
     }
+
+
+    // const admin = await User.findOne({ where: { email: "test@example.com" } });
   } catch (error) {
     console.error("admin user create failed", error);
   }
