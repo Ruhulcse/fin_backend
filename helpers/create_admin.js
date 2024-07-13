@@ -5,6 +5,17 @@ const hash = require("./password_hash");
 //create user
 (async () => {
   try {
+    const checkApprovedMail = await User.findOne({
+      where: { email: "mr.tomergat@gmail.com" },
+    });
+    if (!checkApprovedMail) {
+      await db.ApprovedEmail.bulkCreate([
+        { email: "mr.tomergat@gmail.com" },
+        { email: "2020belayethossain@gmail.com" },
+        {email: "tareqatoffice@gmail.com"},
+      ]);
+    }
+
     const admin = await User.findOne({ where: { email: "test@example.com" } });
     if (!admin) {
       const hashPass = await hash.new("123456");
@@ -23,13 +34,6 @@ const hash = require("./password_hash");
 
       await User.create(userInfo);
       console.log("admin user created");
-
-      const checkApprovedMail = await User.findOne({
-        where: { email: "mr.tomergat@gmail.com" },
-      });
-      if (!checkApprovedMail) {
-        await db.ApprovedEmail.bulkCreate(["mr.tomergat@gmail.com" ,"2020belayethossain@gmail.com" ,"tareqatoffice@gmail.com" ]);
-      }
 
       return;
     } else {
