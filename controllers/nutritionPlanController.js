@@ -154,7 +154,7 @@ module.exports.getALlNutritionGuides = async (req, res, next) => {
 };
 
 module.exports.getUserNutritionPlans = async (req, res, next) => {
-  const { query, user } = req;
+  let { query, user } = req;
   if (user.role !== "admin") {
     query = { ...query, user_id: user.user_id };
   }
