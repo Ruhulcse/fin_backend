@@ -9,7 +9,7 @@ const { sendMail } = require("../helpers/mail");
 
 module.exports.createNutritionPlans = async (req, res, next) => {
   try {
-    const { file } = req;
+    const { file, user } = req;
     const { name, description } = req.body;
     const nutritionPlan_pdf = file ? file.filename : null;
 
@@ -24,7 +24,7 @@ module.exports.createNutritionPlans = async (req, res, next) => {
 
     //send mail
     const mailOptions = {
-      to: newUser.email,
+      to: user.email,
       subject: `New Nutrition Plan Assigned`,
       html: `<h2>You have a new nutrition plan assigned. Please check your dashboard for details.</h2>`,
     };
@@ -156,7 +156,7 @@ module.exports.getALlNutritionGuides = async (req, res, next) => {
 module.exports.getUserNutritionPlans = async (req, res, next) => {
   let { query, user } = req;
   if (user.role !== "admin") {
-    query = { ...query, user_id: user.user_id };
+    query = { ...query, user_id: user.id };
   }
   try {
     const nutritionPlans = await UserNutritionPlans.findAll({

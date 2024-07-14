@@ -55,6 +55,7 @@ module.exports.loginUser = async (req, res, next) => {
       const payload = {
         id: user.user_id,
         name: user.name,
+        email: user.email,
         role: user.role,
         gender: user.gender,
         status: user.status,
