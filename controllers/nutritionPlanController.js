@@ -5,6 +5,7 @@ const UserNutritionPlans = db.UserNutritionPlans;
 const User = db.User;
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl, deleteObject } = require("../middlewares/s3Upload");
+const { sendMail } = require("../helpers/mail");
 
 module.exports.createNutritionPlans = async (req, res, next) => {
   try {
@@ -20,6 +21,15 @@ module.exports.createNutritionPlans = async (req, res, next) => {
     if (req.body.user_id) {
       await db.UserNutritionPlans.create({ user_id: req.body.user_id, nutrition_plan_id: result.id });
     }
+
+    //send mail
+    const mailOptions = {
+      to: newUser.email,
+      subject: `New Nutrition Plan Assigned`,
+      html: `<h2>You have a new nutrition plan assigned. Please check your dashboard for details.</h2>`,
+    };
+    await sendMail(mailOptions);
+
     res.json(createResponse(result, "NutritionPlan successfully created."));
   } catch (err) {
     next(err);

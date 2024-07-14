@@ -36,7 +36,7 @@ const validateRegistrationData = (data) => {
 module.exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ where: { email } }); //, status: "active"
+    const user = await User.findOne({ where: { email, status: "active" } });
     if (!user) {
       res.json(createResponse(null, "User unauthorized!."));
       // throw new ErrorHandler("User unauthorized!.", 401);
