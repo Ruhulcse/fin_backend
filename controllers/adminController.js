@@ -5,6 +5,7 @@ const ApprovedEmail = db.ApprovedEmail;
 const UserNutritionPlans = db.UserNutritionPlans;
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
+const { getUrl } = require("../middlewares/s3Upload");
 
 module.exports.getWorkoutsByUserID = async (req, res, next) => {
   const { userId } = req.params;
@@ -40,6 +41,9 @@ module.exports.getTrainingByWorkoutID = async (req, res, next) => {
     if (!result || result.length === 0) {
       res.status(404).json(createResponse(null, "Training not found."));
       return;
+    }
+    for (const item of result) {
+      item.Exercise.video_url = await getUrl(item.Exercise.video_url);
     }
     res.json(createResponse(result, "Training successfully retrive."));
   } catch (error) {
