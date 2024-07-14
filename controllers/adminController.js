@@ -94,7 +94,6 @@ module.exports.updateTrainingByID = async (req, res, next) => {
   const { body } = req;
   try {
     for (const item of body) {
-      console.log("🚀 ~ module.exports.updateTrainingByID= ~ item:", item, item.training_id)
       if (item.training_id) {
         await Training.update(
           {
