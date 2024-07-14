@@ -315,6 +315,7 @@ module.exports.findAll = async (req, res, next) => {
         "role",
         "status",
       ],
+      order: [["role", "ASC"]],
     });
     res.json(createResponse(users, "User successfully retrive."));
   } catch (error) {
