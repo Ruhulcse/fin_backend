@@ -116,7 +116,13 @@ module.exports.register = async (req, res, next) => {
       console.log("User is already existed.");
       throw new ErrorHandler("User is already existed.", 409);
     } else {
-      const role = ["mr.tomergat@gmail.com" ,"2020belayethossain@gmail.com" ,"tareqatoffice@gmail.com" ].includes(body.email) ? 'admin' : 'user'
+      const role = [
+        "mr.tomergat@gmail.com",
+        "2020belayethossain@gmail.com",
+        "tareqatoffice@gmail.com",
+      ].includes(body.email)
+        ? "admin"
+        : "user";
       newUser = await User.create({
         first_name: body.first_name,
         last_name: body.last_name,
@@ -380,48 +386,52 @@ module.exports.updateUserDetials = async (req, res, next) => {
   const data = JSON.parse(body.user_details);
 
   try {
-    const details = await UserDetail.create({
-      user_id: data.user_id,
-      phone: data.phone,
-      age: data.age,
-      height: data.height,
-      weight: data.weight,
-      highest_weight: data.highest_weight,
-      training_years: data.training_years,
-      training_frequency: data.training_frequency,
-      preferred_training_location: data.preferred_training_location,
-      home_equipment: data.home_equipment,
-      desired_equipment: data.desired_equipment,
-      strength_training_description: data.strength_training_description,
-      favorite_cardio: data.favorite_cardio,
-      preferred_focus_areas: data.preferred_focus_areas,
-      injuries: data.injuries,
-      favorite_foods: data.favorite_foods,
-      disliked_foods: data.disliked_foods,
-      food_tracking_method: data.food_tracking_method,
-      past_diets: data.past_diets,
-      current_cardio_routine: data.current_cardio_routine,
-      daily_nutrition: data.daily_nutrition,
-      weekend_nutrition: data.weekend_nutrition,
-      favorite_recipes: data.favorite_recipes,
-      alcohol_consumption: data.alcohol_consumption,
-      medications: data.medications,
-      sleep_hours: data.sleep_hours,
-      current_job: data.current_job,
-      activity_level: data.activity_level,
-      sports_participation: data.sports_participation,
-      mirror_reflection: data.mirror_reflection,
-      long_term_goals: data.long_term_goals,
-      motivation_level: data.motivation_level,
-      commitment_declaration: data.commitment_declaration,
-      additional_notes: data.additional_notes,
-      health_declaration: body.health_declaration,
-      signature,
-      terms_accepted: data.termsAccepted,
-      mailing_accepted: data.mailingAccepted,
-    });
+    const isExist = await User.findOne({ where: { user_id: data.user_id } });
+    if (!isExist) {
+      const details = await UserDetail.create({
+        user_id: data.user_id,
+        phone: data.phone,
+        age: data.age,
+        height: data.height,
+        weight: data.weight,
+        highest_weight: data.highest_weight,
+        training_years: data.training_years,
+        training_frequency: data.training_frequency,
+        preferred_training_location: data.preferred_training_location,
+        home_equipment: data.home_equipment,
+        desired_equipment: data.desired_equipment,
+        strength_training_description: data.strength_training_description,
+        favorite_cardio: data.favorite_cardio,
+        preferred_focus_areas: data.preferred_focus_areas,
+        injuries: data.injuries,
+        favorite_foods: data.favorite_foods,
+        disliked_foods: data.disliked_foods,
+        food_tracking_method: data.food_tracking_method,
+        past_diets: data.past_diets,
+        current_cardio_routine: data.current_cardio_routine,
+        daily_nutrition: data.daily_nutrition,
+        weekend_nutrition: data.weekend_nutrition,
+        favorite_recipes: data.favorite_recipes,
+        alcohol_consumption: data.alcohol_consumption,
+        medications: data.medications,
+        sleep_hours: data.sleep_hours,
+        current_job: data.current_job,
+        activity_level: data.activity_level,
+        sports_participation: data.sports_participation,
+        mirror_reflection: data.mirror_reflection,
+        long_term_goals: data.long_term_goals,
+        motivation_level: data.motivation_level,
+        commitment_declaration: data.commitment_declaration,
+        additional_notes: data.additional_notes,
+        health_declaration: body.health_declaration,
+        signature,
+        terms_accepted: data.termsAccepted,
+        mailing_accepted: data.mailingAccepted,
+      });
+      res.json(createResponse(details, "User details inserted successfully"));
+    }
 
-    res.json(createResponse(details, "User details inserted successfully"));
+    res.json(createResponse(null, "User details already exist."));
   } catch (err) {
     console.log("🚀 ~ module.exports.updateUserDetials= ~ err:", err);
     next(err);
