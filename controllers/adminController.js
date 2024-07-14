@@ -122,7 +122,7 @@ module.exports.updateTrainingByID = async (req, res, next) => {
     }
     res.json(createResponse(null, "Training updated successfully"));
   } catch (error) {
-    logger.error("Error updating training with ID:", trainingId, error.message);
+    logger.error("Error updating training with ID:", error.message);
     next(error);
   }
 };
