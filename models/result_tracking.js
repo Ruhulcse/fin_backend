@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
     },
     steps_to_do: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     avg_steps: {
       type: DataTypes.INTEGER,
