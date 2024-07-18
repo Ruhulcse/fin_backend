@@ -147,15 +147,14 @@ module.exports.getTrackingBYID = async (req, res, next) => {
 
 // Define the add new food entry route
 module.exports.createFoodEntry = async (req, res, next) => {
-  const { steps_to_do, avg_steps, result_dt, description, task_id } = req.body;
+  const { result_dt, description, task_id } = req.body;
 
   try {
     const newEntry = await db.ResultTracking.create({
       task_id,
+      user_id: req.user.id,
       eating_day_free_txt: description,
-      steps_to_do,
       result_dt,
-      avg_steps,
     });
 
     // Update the task status to 'Finish'
@@ -167,6 +166,31 @@ module.exports.createFoodEntry = async (req, res, next) => {
   } catch (error) {
     logger.error("Error inserting new food entry:", error.message);
     // res.status(500).json({ error: "Database error" });
+    next(error);
+  }
+};
+
+module.exports.getUserFoodEntries = async (req, res, next) => {
+  let { query, user } = req;
+  if (user.role !== "admin") {
+    query = { ...query, user_id: user.id };
+  }
+  try {
+    const foodEntries = await db.ResultTracking.findAll({
+      where: query,
+      include: [
+        {
+          model: User,
+          attributes: ["name", "first_name", "last_name"],
+        },
+      ],
+    });
+
+    res.json(
+      createResponse(foodEntries, "Food entry successfully retrive.")
+    );
+  } catch (error) {
+    logger.error("Error fetching food entry:", error.message);
     next(error);
   }
 };

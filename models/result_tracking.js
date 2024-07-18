@@ -7,6 +7,13 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
+    user_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: "users",
+        key: "user_id",
+      },
+    },
     task_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -31,6 +38,10 @@ module.exports = (sequelize) => {
     tableName: 'result_tracking',
     timestamps: false,
   });
+
+  ResultTracking.associate = function(models) {
+    ResultTracking.belongsTo(models.User, { foreignKey: 'user_id' });
+  };
 
   return ResultTracking;
 };
