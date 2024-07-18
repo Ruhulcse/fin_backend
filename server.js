@@ -58,6 +58,7 @@ const syncDatabase = async () => {
     await db.Task.sync();
     await db.Workout.sync();
     await db.NutritionPlan.sync();
+    await db.NutritionGuide.sync();
     await db.ResultTracking.sync();
     await db.Exercise.sync();
     await db.Training.sync();

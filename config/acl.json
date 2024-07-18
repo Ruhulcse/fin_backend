@@ -8,7 +8,8 @@
     "tracking": ["*"],
     "tasks": ["*"],
     "exercises": ["*"],
-    "nutrition-plans": ["*"]
+    "nutrition-plans": ["*"],
+    "nutrition-guides": ["*"]
   },
   "trainer": {
     "signup": ["*"],
@@ -19,7 +20,8 @@
     "tracking": ["*"],
     "tasks": ["*"],
     "exercises": ["*"],
-    "nutrition-plans": ["*"]
+    "nutrition-plans": ["*"],
+    "nutrition-guides": ["*"]
   },
   "user": {
     "signup": ["*"],
