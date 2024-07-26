@@ -70,11 +70,11 @@ module.exports.getNutritionGuidesByID = async (req, res, next) => {
 };
 
 module.exports.getALlNutritionGuides = async (req, res, next) => {
-  const { query } = req.params;
+  const { query } = req;
 
   try {
     const nutritionGuide = await db.NutritionGuide.findAll({
-      where: { ...query },
+      where: query,
     });
     res.json(
       createResponse(nutritionGuide, "NutritionGuide successfully retrive.")

@@ -147,13 +147,13 @@ module.exports.getTrackingBYID = async (req, res, next) => {
 
 // Define the add new food entry route
 module.exports.createFoodEntry = async (req, res, next) => {
-  const { result_dt, description, task_id } = req.body;
+  const { result_dt, eating_day_free_txt, task_id } = req.body;
 
   try {
     const newEntry = await db.ResultTracking.create({
       task_id,
       user_id: req.user.id,
-      eating_day_free_txt: description,
+      eating_day_free_txt,
       result_dt,
     });
 
