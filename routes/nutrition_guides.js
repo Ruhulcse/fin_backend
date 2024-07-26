@@ -20,6 +20,5 @@ router.put(
   updateNutritionGuidesByID
 );
 router.get("/api/nutrition-guides", getALlNutritionGuides);
-router.get("/api/nutrition-guides/guides", getALlNutritionGuides);
 
 module.exports = router;

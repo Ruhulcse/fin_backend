@@ -180,7 +180,7 @@ module.exports.getUserFoodEntries = async (req, res, next) => {
       where: query,
       include: [
         {
-          model: User,
+          model: db.User,
           attributes: ["name", "first_name", "last_name"],
         },
       ],
