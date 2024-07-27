@@ -186,11 +186,121 @@ module.exports.getUserFoodEntries = async (req, res, next) => {
       ],
     });
 
-    res.json(
-      createResponse(foodEntries, "Food entry successfully retrive.")
-    );
+    res.json(createResponse(foodEntries, "Food entry successfully retrive."));
   } catch (error) {
     logger.error("Error fetching food entry:", error.message);
+    next(error);
+  }
+};
+
+module.exports.getMeasurementReport = async (req, res, next) => {
+  try {
+    const { query } = req;
+    if (req.user.role === "user") query.user_id = req.user.id;
+    const measurements = await db.Measurement.findAll({
+      where: query,
+    });
+    const data = [];
+    measurements.map((item) => {
+      data.push({
+        Arml: item.arml,
+        Armr: item.armr,
+        Thighl: item.thighl,
+        Thighr: item.thighr,
+        Chest: item.chest,
+        Waist: item.waist,
+        Weight: item.weight,
+        "Body Fat Percentage": item.body_fat_percentage,
+        Date: item.date,
+      });
+    });
+
+    res.json(createResponse(data, "measurements report successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching measurements report:", error.message);
+    next(error);
+  }
+};
+
+module.exports.getTrainingHistoryReport = async (req, res, next) => {
+  try {
+    const { query } = req;
+    if (req.user.role === "user") query.user_id = req.user.id;
+    const workouts = await db.Workout.findAll({
+      where: query,
+      attributes: ["workout_id"],
+    });
+
+    const trainings = await db.Training.findAll({
+      where: {
+        workout_id: {
+          [Op.in]: workouts.map((item) => item.workout_id),
+        },
+      },
+      include: [
+        {
+          model: db.Exercise,
+          attributes: ["area", "name", "equipment", "description", "video_url"],
+        },
+        {
+          model: db.Workout,
+          attributes: ["workout_name", "workout_description"],
+        },
+      ],
+    });
+
+    // const groupedByWorkout = trainings.reduce((acc, training) => {
+    //   const workoutName = training.Workout.workout_name;
+
+    //   if (!acc[workoutName]) {
+    //     acc[workoutName] = {
+    //       exercises: [],
+    //     };
+    //   }
+
+    //   acc[workoutName].exercises.push({
+    //     "Traning Date": training.updatedAt,
+    //     "Weight Done": training.last_set_weight,
+    //     "Reps Done": training.reps_done,
+    //     "Sets Done": training.sets_done,
+    //     "Goal Weight": training.goal_weight,
+    //     "Sets Target": training.sets_to_do,
+    //     "Reps Target": training.reps_to_do,
+    //     Manipulation: training.manipulation,
+    //     Workout: training.Workout.workout_name,
+    //     Exercise: training.Exercise.name,
+    //     // "Video Url": await getUrl(training.Exercise.video_url),
+    //   });
+
+    //   return acc;
+    // }, {});
+
+    const data = {};
+    for (const training of trainings) {
+      const workoutName = training.Workout.workout_name;
+
+      if (!data[workoutName]) {
+        data[workoutName] = [];
+      }
+
+      data[workoutName].push({
+        "Traning Date": training.updatedAt,
+        "Weight Done": training.last_set_weight,
+        "Reps Done": training.reps_done,
+        "Sets Done": training.sets_done,
+        "Goal Weight": training.goal_weight,
+        "Sets Target": training.sets_to_do,
+        "Reps Target": training.reps_to_do,
+        Manipulation: training.manipulation,
+        Workout: training.Workout.workout_name,
+        Exercise: training.Exercise.name,
+        "Video Url": await getUrl(training.Exercise.video_url),
+      });
+    }
+
+    res.json(createResponse(data, "measurements report successfully retrive."));
+  } catch (error) {
+    logger.error("Error fetching measurements report:", error.message);
     next(error);
   }
 };
