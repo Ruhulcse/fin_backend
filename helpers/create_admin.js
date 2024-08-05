@@ -13,6 +13,8 @@ const hash = require("./password_hash");
         { email: "mr.tomergat@gmail.com" },
         { email: "2020belayethossain@gmail.com" },
         {email: "tareqatoffice@gmail.com"},
+        {email: "kawser07.khk@gmail.com"},
+        {email: "ruhul.cse123@gmail.com"},
       ]);
     }
 
