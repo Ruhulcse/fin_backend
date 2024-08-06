@@ -88,6 +88,7 @@ module.exports = (sequelize) => {
     User.hasMany(models.NutritionPlan, { foreignKey: "user_id" });
     User.hasMany(models.UserNutritionPlans, { foreignKey: "user_id" });
     User.hasMany(models.ResultTracking, { foreignKey: "user_id" });
+    User.hasOne(models.Training, { foreignKey: "user_id" });
   };
 
   return User;

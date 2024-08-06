@@ -3,8 +3,6 @@ const app = express();
 const cors = require("cors");
 const routes = require("./routes");
 const multer = require("multer");
-// const logger = require("./logger");
-
 const logger = require("morgan");
 const helmet = require("helmet");
 const auth = require("./middlewares/auth");
@@ -13,7 +11,6 @@ require("./helpers/create_admin");
 const { createResponse } = require("./utils/responseGenerate");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
-// const {createAudience} = require("./helpers/send_email");
 
 require("dotenv").config();
 
@@ -62,6 +59,7 @@ const syncDatabase = async () => {
     await db.ResultTracking.sync();
     await db.Exercise.sync();
     await db.Training.sync();
+    await db.TrainingRecord.sync();
     console.log("Database synced");
   } catch (error) {
     console.error("Error syncing database:", error);

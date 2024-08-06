@@ -11,13 +11,15 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
     workout_description,
     scheduled_date,
     status,
+    training_id,
     training,
   } = req.body;
   try {
     const payload = {
       user_id,
-      workout_name: workout_name,
-      workout_description: workout_description,
+      training_id,
+      workout_name,
+      workout_description,
       status: "pending",
     };
     const workouts = await db.Workout.findAll({
@@ -35,7 +37,8 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
     const newWorkoutId = workoutResult.dataValues.workout_id;
 
     for (const entry of training) {
-      await db.Training.create({
+      await db.TrainingRecord.create({
+        training_id,
         workout_id: newWorkoutId,
         exercise_id: entry.exercise_id,
         trainer_exp: entry.trainer_exp,
@@ -49,45 +52,45 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       });
     }
 
-    const task = await db.Task.create({
-      user_id,
-      task_name: workout_name,
-      task_status: "Pending",
-      task_type: "workout",
-      task_description: workout_description,
-      workout_id: newWorkoutId,
-    });
+    // const task = await db.Task.create({
+    //   user_id,
+    //   task_name: workout_name,
+    //   task_status: "Pending",
+    //   task_type: "workout",
+    //   task_description: workout_description,
+    //   workout_id: newWorkoutId,
+    // });
 
-    const user = await db.User.findOne({
-      where: { user_id },
-      attributes: ["user_id", "new_user", "email"],
-    });
-    if (user.new_user === true) {
-      await db.User.update(
-        {
-          new_user: false,
-        },
-        { where: { user_id } }
-      );
-    }
+    // const user = await db.User.findOne({
+    //   where: { user_id },
+    //   attributes: ["user_id", "new_user", "email"],
+    // });
+    // if (user.new_user === true) {
+    //   await db.User.update(
+    //     {
+    //       new_user: false,
+    //     },
+    //     { where: { user_id } }
+    //   );
+    // }
 
-    if (task) {
-      //send mail for task
-      const mailOptions = {
-        to: user.email,
-        subject: `New Task Assigned`,
-        html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
-      };
-      await sendMail(mailOptions);
-    }
+    // if (task) {
+    //   //send mail for task
+    //   const mailOptions = {
+    //     to: user.email,
+    //     subject: `New Task Assigned`,
+    //     html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
+    //   };
+    //   await sendMail(mailOptions);
+    // }
 
-    //send mail workout
-    const mailOptions = {
-      to: user.email,
-      subject: `New Workout Added`,
-      html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
-    };
-    await sendMail(mailOptions);
+    // //send mail workout
+    // const mailOptions = {
+    //   to: user.email,
+    //   subject: `New Workout Added`,
+    //   html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
+    // };
+    // await sendMail(mailOptions);
     res.json(
       createResponse(
         { workout_id: newWorkoutId },
@@ -174,7 +177,7 @@ module.exports.getTrainingByUserId = async (req, res, next) => {
       attributes: ["workout_id"],
     });
 
-    const tranings = await db.Training.findAll({
+    const tranings = await db.TrainingRecord.findAll({
       where: {
         workout_id: {
           [Op.in]: workouts.map((item) => item.workout_id),
@@ -222,14 +225,14 @@ module.exports.userWorkoutUpdate = async (req, res, next) => {
 
   try {
     for (const exercise of exercises) {
-      await db.Training.update(
+      await db.TrainingRecord.update(
         {
           sets_done: exercise.sets_done || 0,
           reps_done: exercise.reps_done || 0,
           last_set_weight: exercise.last_set_weight || 0,
         },
         {
-          where: { training_id: exercise.training_id },
+          where: { training_record_id: exercise.training_record_id },
         }
       );
     }

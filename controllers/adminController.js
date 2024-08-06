@@ -1,6 +1,6 @@
 const db = require("../models");
 const Workout = db.Workout;
-const Training = db.Training;
+const TrainingRecord = db.TrainingRecord;
 const ApprovedEmail = db.ApprovedEmail;
 const UserNutritionPlans = db.UserNutritionPlans;
 const logger = require("../logger");
@@ -25,7 +25,7 @@ module.exports.getWorkoutsByUserID = async (req, res, next) => {
 module.exports.getTrainingByWorkoutID = async (req, res, next) => {
   const { workoutId } = req.params;
   try {
-    const result = await Training.findAll({
+    const result = await TrainingRecord.findAll({
       where: { workout_id: workoutId },
       include: [
         {
@@ -59,7 +59,7 @@ module.exports.getTrainingByWorkoutID = async (req, res, next) => {
 module.exports.getTrainings = async (req, res) => {
   const { query } = req;
   try {
-    const result = await Training.findAll({ where: query });
+    const result = await TrainingRecord.findAll({ where: query });
     if (!result || result.length === 0) {
       res.status(404).json(createResponse(null, "Training not found."));
       return;
@@ -78,9 +78,9 @@ module.exports.getTrainings = async (req, res) => {
 module.exports.deleteTrainingByID = async (req, res, next) => {
   const { trainingId } = req.params;
   try {
-    await Training.destroy({
+    await TrainingRecord.destroy({
       where: {
-        training_id: trainingId,
+        training_record_id: trainingId,
       },
     });
     res.json(createResponse(null, "Training deleted successfully"));
@@ -94,8 +94,8 @@ module.exports.updateTrainingByID = async (req, res, next) => {
   const { body } = req;
   try {
     for (const item of body) {
-      if (item.training_id) {
-        await Training.update(
+      if (item.training_record_id) {
+        await TrainingRecord.update(
           {
             exercise_id: item.exercise_id,
             sets_to_do: item.sets_to_do,
@@ -105,12 +105,13 @@ module.exports.updateTrainingByID = async (req, res, next) => {
           },
           {
             where: {
-              training_id: item.training_id,
+              training_record_id: item.training_record_id,
             },
           }
         );
       } else {
-        await db.Training.create({
+        await db.TrainingRecord.create({
+          training_id: item.training_id,
           workout_id: item.workout_id,
           exercise_id: item.exercise_id,
           trainer_exp: item.trainer_exp,

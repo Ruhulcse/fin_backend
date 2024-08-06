@@ -5,16 +5,16 @@ const hash = require("./password_hash");
 //create user
 (async () => {
   try {
-    const checkApprovedMail = await User.findOne({
+    const checkApprovedMail = await db.ApprovedEmail.findOne({
       where: { email: "mr.tomergat@gmail.com" },
     });
     if (!checkApprovedMail) {
       await db.ApprovedEmail.bulkCreate([
         { email: "mr.tomergat@gmail.com" },
         { email: "2020belayethossain@gmail.com" },
-        {email: "tareqatoffice@gmail.com"},
-        {email: "kawser07.khk@gmail.com"},
-        {email: "ruhul.cse123@gmail.com"},
+        { email: "tareqatoffice@gmail.com" },
+        { email: "kawser07.khk@gmail.com" },
+        { email: "ruhul.cse123@gmail.com" },
       ]);
     }
 

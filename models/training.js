@@ -1,5 +1,4 @@
 const { Sequelize, DataTypes } = require('sequelize');
-
 module.exports = (sequelize) => {
   const Training = sequelize.define('Training', {
     training_id: {
@@ -7,72 +6,39 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
-    workout_id: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'workouts',
-        key: 'workout_id',
+        model: 'users', // refers to table name
+        key: 'user_id',
       },
     },
-    exercise_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'exercises',
-        key: 'exercise_id',
-      },
-    },
-    trainer_exp: {
+    training_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    sets_to_do: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    reps_to_do: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    goal_weight: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    manipulation: {
+    training_description: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
-    sets_done: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    reps_done: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    last_set_weight: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    createdAt: {
+    scheduled_date: {
       type: DataTypes.DATE,
       allowNull: true,
-      defaultValue: Sequelize.NOW,
     },
-    updatedAt: {
-      type: DataTypes.DATE,
+    status: {
+      type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: Sequelize.NOW,
     },
   }, {
     tableName: 'training',
-    timestamps: false,
+    timestamps: true,
   });
 
   Training.associate = (models) => {
-    Training.belongsTo(models.Exercise, { foreignKey: "exercise_id" });
-    Training.belongsTo(models.Workout, { foreignKey: "workout_id" });
+    Training.belongsTo(models.User, { foreignKey: 'user_id' });
+    Training.hasOne(models.Workout, { foreignKey: "training_id" });
+    Training.hasOne(models.TrainingRecord, { foreignKey: "training_id" });
   };
 
   return Training;

@@ -14,6 +14,14 @@ module.exports = (sequelize) => {
         key: 'user_id',
       },
     },
+    training_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'training', // refers to table name
+        key: 'training_id',
+      },
+    },
     workout_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -37,7 +45,8 @@ module.exports = (sequelize) => {
 
   Workout.associate = (models) => {
     Workout.belongsTo(models.User, { foreignKey: 'user_id' });
-    Workout.hasOne(models.Training, { foreignKey: "workout_id" });
+    Workout.belongsTo(models.Training, { foreignKey: "training_id" });
+    Workout.hasOne(models.TrainingRecord, { foreignKey: "workout_id" });
   };
 
   return Workout;

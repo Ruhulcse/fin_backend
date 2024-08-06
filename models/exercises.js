@@ -35,7 +35,7 @@ module.exports = (sequelize) => {
   });
 
   Exercise.associate = (models) => {
-    Exercise.hasOne(models.Training, { foreignKey: "exercise_id" });
+    Exercise.hasOne(models.TrainingRecord, { foreignKey: "exercise_id" });
   };
 
   return Exercise;

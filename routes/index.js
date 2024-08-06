@@ -6,6 +6,7 @@ const exercises = require("./exercises");
 const nutrition_plans = require("./nutrition_plans");
 const nutrition_guides = require("./nutrition_guides");
 const tracking = require("./tracking");
+const trainings = require("./trainings");
 
 module.exports = [
   users,
@@ -16,4 +17,5 @@ module.exports = [
   nutrition_plans,
   nutrition_guides,
   tracking,
+  trainings,
 ];
