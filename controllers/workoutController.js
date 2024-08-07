@@ -35,10 +35,11 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
 
     const workoutResult = await db.Workout.create(payload);
     const newWorkoutId = workoutResult.dataValues.workout_id;
-
+    let parent_id = null;
     for (const entry of training) {
-      await db.TrainingRecord.create({
+      const record = await db.TrainingRecord.create({
         training_id,
+        parent_id,
         workout_id: newWorkoutId,
         exercise_id: entry.exercise_id,
         trainer_exp: entry.trainer_exp,
@@ -50,47 +51,48 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
         reps_done: 0,
         last_set_weight: 0,
       });
+      parent_id = entry.manipulation.toLowerCase() === 'superset' ? record.training_record_id : null;
     }
 
-    // const task = await db.Task.create({
-    //   user_id,
-    //   task_name: workout_name,
-    //   task_status: "Pending",
-    //   task_type: "workout",
-    //   task_description: workout_description,
-    //   workout_id: newWorkoutId,
-    // });
+    const task = await db.Task.create({
+      user_id,
+      task_name: workout_name,
+      task_status: "Pending",
+      task_type: "workout",
+      task_description: workout_description,
+      workout_id: newWorkoutId,
+    });
 
-    // const user = await db.User.findOne({
-    //   where: { user_id },
-    //   attributes: ["user_id", "new_user", "email"],
-    // });
-    // if (user.new_user === true) {
-    //   await db.User.update(
-    //     {
-    //       new_user: false,
-    //     },
-    //     { where: { user_id } }
-    //   );
-    // }
+    const user = await db.User.findOne({
+      where: { user_id },
+      attributes: ["user_id", "new_user", "email"],
+    });
+    if (user.new_user === true) {
+      await db.User.update(
+        {
+          new_user: false,
+        },
+        { where: { user_id } }
+      );
+    }
 
-    // if (task) {
-    //   //send mail for task
-    //   const mailOptions = {
-    //     to: user.email,
-    //     subject: `New Task Assigned`,
-    //     html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
-    //   };
-    //   await sendMail(mailOptions);
-    // }
+    if (task) {
+      //send mail for task
+      const mailOptions = {
+        to: user.email,
+        subject: `New Task Assigned`,
+        html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
+      };
+      await sendMail(mailOptions);
+    }
 
-    // //send mail workout
-    // const mailOptions = {
-    //   to: user.email,
-    //   subject: `New Workout Added`,
-    //   html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
-    // };
-    // await sendMail(mailOptions);
+    //send mail workout
+    const mailOptions = {
+      to: user.email,
+      subject: `New Workout Added`,
+      html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
+    };
+    await sendMail(mailOptions);
     res.json(
       createResponse(
         { workout_id: newWorkoutId },
