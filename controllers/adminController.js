@@ -4,6 +4,7 @@ const TrainingRecord = db.TrainingRecord;
 const ApprovedEmail = db.ApprovedEmail;
 const UserNutritionPlans = db.UserNutritionPlans;
 const logger = require("../logger");
+const { Op } = require("sequelize");
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl } = require("../middlewares/s3Upload");
 
@@ -93,6 +94,20 @@ module.exports.deleteTrainingByID = async (req, res, next) => {
 module.exports.updateTrainingByID = async (req, res, next) => {
   const { body } = req;
   try {
+    const workout_id = body[0].workout_id;
+    const recordId = [];
+    body.map((item) => {
+      if (item.training_record_id) {
+        recordId.push(item.training_record_id);
+      }
+    });
+    await TrainingRecord.destroy({
+      where: {
+        workout_id,
+        training_record_id: { [Op.notIn]: recordId },
+      },
+    });
+
     for (const item of body) {
       if (item.training_record_id) {
         await TrainingRecord.update(
