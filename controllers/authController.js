@@ -344,7 +344,7 @@ module.exports.getUserAgreements = async (req, res, next) => {
         },
       ],
     });
-    if (users && users.length === 1 && users[0]?.UserDetail.signature) {
+    if (users && users.length === 1 && users[0]?.UserDetail?.signature) {
       users[0].UserDetail.signature = await getUrl(
         users[0].UserDetail.signature
       );
@@ -388,7 +388,7 @@ module.exports.updateUserDetials = async (req, res, next) => {
   const data = JSON.parse(body.user_details);
 
   try {
-    const isExist = await User.findOne({ where: { user_id: data.user_id } });
+    const isExist = await UserDetail.findOne({ where: { user_id: data.user_id } });
     if (!isExist) {
       const details = await UserDetail.create({
         user_id: data.user_id,
