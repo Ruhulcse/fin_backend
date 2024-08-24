@@ -35,6 +35,7 @@
     "tasks": ["GET", "PUT"],
     "exercises": ["GET"],
     "nutrition-plans": ["GET"],
+    "nutrition-guides": ["GET"],
     "admin": ["GET"]
   }
 }
