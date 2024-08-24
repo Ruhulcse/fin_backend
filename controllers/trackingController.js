@@ -228,77 +228,65 @@ module.exports.getTrainingHistoryReport = async (req, res, next) => {
     if (req.user.role === "user") query.user_id = req.user.id;
     const workouts = await db.Workout.findAll({
       where: query,
-      attributes: ["workout_id"],
+      attributes: ["training_id"],
     });
 
     const trainings = await db.Training.findAll({
       where: {
-        workout_id: {
-          [Op.in]: workouts.map((item) => item.workout_id),
+        training_id: {
+          [Op.in]: workouts.map((item) => item.training_id),
         },
       },
       include: [
         {
-          model: db.Exercise,
-          attributes: ["area", "name", "equipment", "description", "video_url"],
-        },
-        {
-          model: db.Workout,
-          attributes: ["workout_name", "workout_description"],
+          model: db.TrainingRecord,
+          include: [
+            {
+              model: db.Workout,
+              attributes: ["workout_name", "workout_description"],
+            },
+            {
+              model: db.Exercise,
+              attributes: [
+                "area",
+                "name",
+                "equipment",
+                "description",
+                "video_url",
+              ],
+            },
+          ],
         },
       ],
     });
 
-    // const groupedByWorkout = trainings.reduce((acc, training) => {
-    //   const workoutName = training.Workout.workout_name;
-
-    //   if (!acc[workoutName]) {
-    //     acc[workoutName] = {
-    //       exercises: [],
-    //     };
-    //   }
-
-    //   acc[workoutName].exercises.push({
-    //     "Traning Date": training.updatedAt,
-    //     "Weight Done": training.last_set_weight,
-    //     "Reps Done": training.reps_done,
-    //     "Sets Done": training.sets_done,
-    //     "Goal Weight": training.goal_weight,
-    //     "Sets Target": training.sets_to_do,
-    //     "Reps Target": training.reps_to_do,
-    //     Manipulation: training.manipulation,
-    //     Workout: training.Workout.workout_name,
-    //     Exercise: training.Exercise.name,
-    //     // "Video Url": await getUrl(training.Exercise.video_url),
-    //   });
-
-    //   return acc;
-    // }, {});
-
     const data = {};
     for (const training of trainings) {
-      const workoutName = training.Workout.workout_name;
+      const key = training.training_name;
+      const TrainingRecord = training.TrainingRecord;
 
-      if (!data[workoutName]) {
-        data[workoutName] = [];
+      if (!data[key]) {
+        data[key] = [];
       }
 
-      data[workoutName].push({
-        "Traning Date": training.updatedAt,
-        "Weight Done": training.last_set_weight,
-        "Reps Done": training.reps_done,
-        "Sets Done": training.sets_done,
-        "Goal Weight": training.goal_weight,
-        "Sets Target": training.sets_to_do,
-        "Reps Target": training.reps_to_do,
-        Manipulation: training.manipulation,
-        Workout: training.Workout.workout_name,
-        Exercise: training.Exercise.name,
-        "Video Url": await getUrl(training.Exercise.video_url),
+      data[key].push({
+        "Traning Date": TrainingRecord.updatedAt,
+        "Weight Done": TrainingRecord.last_set_weight,
+        "Reps Done": TrainingRecord.reps_done,
+        "Sets Done": TrainingRecord.sets_done,
+        "Goal Weight": TrainingRecord.goal_weight,
+        "Sets Target": TrainingRecord.sets_to_do,
+        "Reps Target": TrainingRecord.reps_to_do,
+        Manipulation: TrainingRecord.manipulation,
+        Workout: TrainingRecord.Workout.workout_name,
+        Exercise: TrainingRecord.Exercise.name,
+        "Video Url": await getUrl(TrainingRecord.Exercise.video_url),
       });
     }
 
-    res.json(createResponse(data, "measurements report successfully retrive."));
+    res.json(
+      createResponse(data, "measurements report successfully retrive.")
+    );
   } catch (error) {
     logger.error("Error fetching measurements report:", error.message);
     next(error);
