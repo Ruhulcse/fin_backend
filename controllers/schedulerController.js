@@ -2,7 +2,7 @@ const schedule = require("node-schedule");
 const db = require("../models");
 
 // Define the job to run every Saturday night for create weekly task
-schedule.scheduleJob("* * * * * 7", async function () {
+schedule.scheduleJob("0 0 22 * * 6", async function () {
   console.log(
     "Running scheduled job at 10:00 PM every Saturday night for create weekly task"
   );
