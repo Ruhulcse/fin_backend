@@ -10,7 +10,7 @@ module.exports.createTrainingForUser = async (req, res, next) => {
       user_id,
       training_name: training_name,
       training_description: training_description,
-      status: "pending",
+      status: "active",
     };
     const trainings = await db.Training.findAll({
       where: {
@@ -52,7 +52,7 @@ module.exports.getTrainingsBYID = async (req, res, next) => {
     });
     res.json(createResponse(trainings, "Trainings successfully retrive."));
   } catch (error) {
-    logger.error("Error fetching trainings for ID:", userId, error.message);
+    logger.error("Error fetching trainings for ID:", error.message);
     next(error);
   }
 };
@@ -103,25 +103,64 @@ module.exports.getTrainingByUserId = async (req, res, next) => {
     };
   }
   try {
-    const { query } = req;
-    if (req.user.role === "user") query.user_id = req.user.id;
-    const trainings = await db.Training.findAll({
-      where: { user_id: req.params.userId },
-      attributes: ["training_id"],
-    });
+    // const { query } = req;
+    // if (req.user.role === "user") query.user_id = req.user.id;
+    // const trainings = await db.Training.findAll({
+    //   where: { user_id: req.params.userId },
+    //   attributes: ["training_id"],
+    // });
 
-    const workouts = await db.Workout.findAll({
+    // const workouts = await db.Workout.findAll({
+    //   where: {
+    //     training_id: {
+    //       [Op.in]: trainings.map((item) => item.training_id),
+    //     },
+    //   },
+    //   order: [["createdAt", "DESC"]],
+    // });
+    const workouts = await db.Training.findAll({
       where: {
-        training_id: {
-          [Op.in]: trainings.map((item) => item.training_id),
-        },
+        status: "pending",
       },
-      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: db.TrainingRecord,
+          attributes: ["training_record_id"],
+          include: [
+            {
+              model: db.Workout,
+              attributes: ["workout_id", "workout_name", "workout_description"],
+            },
+          ],
+        },
+      ],
     });
 
     res.json(createResponse(workouts, "Training successfully retrive."));
   } catch (error) {
     logger.error("Error fetching Training:", error.message);
+    next(error);
+  }
+};
+
+module.exports.updateTraining = async (req, res, next) => {
+  const { id } = req.params;
+  const { status, training_description } = req.body;
+
+  try {
+    await db.Training.update(
+      { status, training_description },
+      { where: { training_id: id } }
+    );
+
+    res.json(createResponse(null, "Training successfully updated."));
+  } catch (error) {
+    logger.error(
+      "Error saving training data for training ID:",
+      training_id,
+      error.message
+    );
+    // res.status(500).json({ error: "Failed to save training data" });
     next(error);
   }
 };

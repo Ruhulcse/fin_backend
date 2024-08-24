@@ -2,24 +2,19 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const routes = require("./routes");
-const multer = require("multer");
 const logger = require("morgan");
 const helmet = require("helmet");
 const auth = require("./middlewares/auth");
 const errorHandler = require("./middlewares/errors");
 require("./helpers/create_admin");
+require("./controllers/schedulerController");
 const { createResponse } = require("./utils/responseGenerate");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
 
 require("dotenv").config();
 
-// createAudience()
-// Multer storage configuration for file uploads
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
-
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -39,11 +34,6 @@ app.use(errorHandler);
 app.all("*", (req, res) => {
   res.status(404).send(createResponse(true, "Not Found!"));
 });
-
-
-
-
-
 
 // Import Sequelize config and models
 const db = require("./models");
@@ -76,8 +66,6 @@ app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
-
-
 
 
 // Start the server
