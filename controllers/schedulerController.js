@@ -19,7 +19,7 @@ schedule.scheduleJob("0 0 22 * * 6", async function () {
 
   const trainings = await db.Training.findAll({
     where: {
-      status: "pending",
+      status: "active",
     },
     include: [
       {

@@ -103,37 +103,20 @@ module.exports.getTrainingByUserId = async (req, res, next) => {
     };
   }
   try {
-    // const { query } = req;
-    // if (req.user.role === "user") query.user_id = req.user.id;
-    // const trainings = await db.Training.findAll({
-    //   where: { user_id: req.params.userId },
-    //   attributes: ["training_id"],
-    // });
+    const { query } = req;
+    if (req.user.role === "user") query.user_id = req.user.id;
+    const trainings = await db.Training.findAll({
+      where: { user_id: req.params.userId },
+      attributes: ["training_id"],
+    });
 
-    // const workouts = await db.Workout.findAll({
-    //   where: {
-    //     training_id: {
-    //       [Op.in]: trainings.map((item) => item.training_id),
-    //     },
-    //   },
-    //   order: [["createdAt", "DESC"]],
-    // });
-    const workouts = await db.Training.findAll({
+    const workouts = await db.Workout.findAll({
       where: {
-        status: "pending",
-      },
-      include: [
-        {
-          model: db.TrainingRecord,
-          attributes: ["training_record_id"],
-          include: [
-            {
-              model: db.Workout,
-              attributes: ["workout_id", "workout_name", "workout_description"],
-            },
-          ],
+        training_id: {
+          [Op.in]: trainings.map((item) => item.training_id),
         },
-      ],
+      },
+      order: [["createdAt", "DESC"]],
     });
 
     res.json(createResponse(workouts, "Training successfully retrive."));
