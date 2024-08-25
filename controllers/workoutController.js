@@ -80,8 +80,10 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
       //send mail for task
       const mailOptions = {
         to: user.email,
-        subject: `New Task Assigned`,
-        html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
+        // subject: `New Task Assigned`,
+        // html: `<h2>You have a new task assigned. Please check your dashboard for details.</h2>`,
+        subject: `משימה חדשה הוקצתה`,
+        html: `<h2>הוקצתה לך משימה חדשה. אנא בדוק את לוח המחוונים שלך לפרטים.</h2>`,
       };
       await sendMail(mailOptions);
     }
@@ -89,8 +91,10 @@ module.exports.createWorkoutForUser = async (req, res, next) => {
     //send mail workout
     const mailOptions = {
       to: user.email,
-      subject: `New Workout Added`,
-      html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
+      // subject: `New Workout Added`,
+      // html: `<h2>A new workout has been added to your plan. Please check your dashboard for details.</h2>`,
+      subject: `אימון חדש נוסף`,
+      html: `<h2>אימון חדש נוסף לתוכנית שלך. אנא בדוק את לוח המחוונים שלך לפרטים.</h2>`,
     };
     await sendMail(mailOptions);
     res.json(

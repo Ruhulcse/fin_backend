@@ -25,8 +25,10 @@ module.exports.createNutritionPlans = async (req, res, next) => {
     //send mail
     const mailOptions = {
       to: user.email,
-      subject: `New Nutrition Plan Assigned`,
-      html: `<h2>You have a new nutrition plan assigned. Please check your dashboard for details.</h2>`,
+      // subject: `New Nutrition Plan Assigned`,
+      // html: `<h2>You have a new nutrition plan assigned. Please check your dashboard for details.</h2>`,
+      subject: `תכנית תזונה חדשה הוקצתה`,
+      html: `<h2>הוקצתה לך תוכנית תזונה חדשה. אנא בדוק את לוח המחוונים שלך לפרטים.</h2>`,
     };
     await sendMail(mailOptions);
 
