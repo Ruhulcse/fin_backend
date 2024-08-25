@@ -10,6 +10,9 @@ module.exports.getTask = async (req, res, next) => {
   try {
     const tasks = await Task.findAll({
       where: { user_id: userId, ...req.query },
+      order: [
+        ["task_id", "DESC"],
+      ],
     });
     if (!tasks || tasks.length === 0) {
       res.status(404).json(createResponse(null, "Task not found."));

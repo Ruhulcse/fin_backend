@@ -9,6 +9,7 @@ module.exports.createMeasurement = async (req, res, next) => {
   const {
     user_id,
     date,
+    renew_date,
     weight,
     body_fat_percentage,
     chest,
@@ -25,6 +26,7 @@ module.exports.createMeasurement = async (req, res, next) => {
     const newMeasurement = await db.Measurement.create({
       user_id,
       date,
+      renew_date,
       weight,
       body_fat_percentage,
       chest,

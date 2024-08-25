@@ -17,6 +17,7 @@ module.exports = (sequelize) => {
       }
     },
     date: DataTypes.DATE,
+    renew_date: DataTypes.DATE,
     weight: DataTypes.DECIMAL,
     body_fat_percentage: DataTypes.DECIMAL,
     chest: DataTypes.DECIMAL,
