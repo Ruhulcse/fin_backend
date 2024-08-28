@@ -3,6 +3,7 @@ const {
   createNutritionGuides,
   updateNutritionGuidesByID,
   getALlNutritionGuides,
+  getNutritionGuidesByID,
 } = require("../controllers/nutritionGuideController");
 const { putObject } = require("../middlewares/s3Upload");
 const { upload } = require("../middlewares/imageUpload");
@@ -20,5 +21,6 @@ router.put(
   updateNutritionGuidesByID
 );
 router.get("/api/nutrition-guides", getALlNutritionGuides);
+router.get("/api/nutrition-guides/:nutritionGuideId", getNutritionGuidesByID);
 
 module.exports = router;
