@@ -51,7 +51,7 @@ schedule.scheduleJob("0 0 22 * * 6", async function () {
 });
 
 // Define the job to run every night for create measurement task
-schedule.scheduleJob("* * 23 * * *", async function () {
+schedule.scheduleJob("0 0 23 * * *", async function () {
   console.log(
     "Running scheduled job at 10:00 PM every night for create measurement task"
   );
