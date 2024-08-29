@@ -24,7 +24,9 @@ const putObject = async (req, res, next) => {
       const command = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
         Key: path + "/" + file.filename,
-        Body: file.buffer, // assuming you use a middleware like multer to handle file uploads
+        Body: file.buffer,
+        ContentType: "application/pdf",
+        ContentDisposition: "inline",
       });
       await s3Client.send(command);
       req.file.filename = path + "/" + file.filename;
@@ -34,7 +36,9 @@ const putObject = async (req, res, next) => {
         const command = new PutObjectCommand({
           Bucket: process.env.AWS_S3_BUCKET,
           Key: path + "/" + file.filename,
-          Body: file.buffer, // assuming you use a middleware like multer to handle file uploads
+          Body: file.buffer, 
+          ContentType: "application/pdf",
+          ContentDisposition: "inline",
         });
         await s3Client.send(command);
         file.filename = path + "/" + file.filename;
