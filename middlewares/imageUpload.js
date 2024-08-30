@@ -17,7 +17,7 @@ const fs = require("fs");
 
 const imageFilter = function (req, file, cb) {
   // Accept images only
-  if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|mp4|pdf|PDF)$/)) {
+  if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|mp4|pdf|PDF|mov|wmv|flv|avi|webm|mkv)$/)) {
     req.fileValidationError = "Only image files are allowed!";
     return cb(new Error("Only image files are allowed!"), false);
   }
