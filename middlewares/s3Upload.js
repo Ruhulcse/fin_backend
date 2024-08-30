@@ -15,8 +15,23 @@ const s3Client = new S3Client({
   },
 });
 
+// const contentType = {
+//   mp4: "video/mp4",
+//   webm: "video/webm",
+//   ogg: "video/ogg",
+//   avi: "video/x-msvideo",
+//   mov: "video/quicktime",
+//   wmv: "video/x-ms-wmv",
+//   mkv: "video/x-matroska",
+//   flv: "video/x-flv",
+//   pdf: "application/pdf",
+//   doc: "application/msword",
+//   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+// };
+
 const putObject = async (req, res, next) => {
   const { files, file } = req;
+  console.log("🚀 ~ putObject ~ file:", file)
   const path = req.originalUrl.split("/")[2];
 
   try {
@@ -25,7 +40,7 @@ const putObject = async (req, res, next) => {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: path + "/" + file.filename,
         Body: file.buffer,
-        ContentType: "application/pdf",
+        ContentType: file.mimetype,
         ContentDisposition: "inline",
       });
       await s3Client.send(command);
@@ -36,8 +51,8 @@ const putObject = async (req, res, next) => {
         const command = new PutObjectCommand({
           Bucket: process.env.AWS_S3_BUCKET,
           Key: path + "/" + file.filename,
-          Body: file.buffer, 
-          ContentType: "application/pdf",
+          Body: file.buffer,
+          ContentType: file.mimetype,
           ContentDisposition: "inline",
         });
         await s3Client.send(command);
