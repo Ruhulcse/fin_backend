@@ -31,7 +31,6 @@ const s3Client = new S3Client({
 
 const putObject = async (req, res, next) => {
   const { files, file } = req;
-  console.log("🚀 ~ putObject ~ file:", file)
   const path = req.originalUrl.split("/")[2];
 
   try {
