@@ -24,8 +24,8 @@ module.exports = (sequelize) => {
     due_date: DataTypes.DATE,
     task_type: DataTypes.STRING,
     task_description: DataTypes.STRING,
-    number_of_steps: DataTypes.NUMBER,
-    average_steps: DataTypes.NUMBER,
+    number_of_steps: DataTypes.INTEGER,
+    average_steps: DataTypes.INTEGER,
     workout_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
