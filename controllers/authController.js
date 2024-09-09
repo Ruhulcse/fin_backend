@@ -181,6 +181,8 @@ module.exports.register = async (req, res, next) => {
       await Task.create(task);
     }
 
+    await db.UserStepTargets.create({user_id: userId, step_target: 0});
+
     let token = "";
     if (newUser) {
       const payload = {
