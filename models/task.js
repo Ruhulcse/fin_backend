@@ -24,6 +24,8 @@ module.exports = (sequelize) => {
     due_date: DataTypes.DATE,
     task_type: DataTypes.STRING,
     task_description: DataTypes.STRING,
+    number_of_steps: DataTypes.NUMBER,
+    average_steps: DataTypes.NUMBER,
     workout_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -35,7 +37,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     tableName: 'tasks',
-    timestamps: false,
+    timestamps: true,
   });
 
   Task.associate = function(models) {
