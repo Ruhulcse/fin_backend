@@ -2,7 +2,7 @@ const db = require("../models");
 const logger = require("../logger");
 const { createResponse } = require("../utils/responseGenerate");
 const { getUrl } = require("../middlewares/s3Upload");
-const { Op } = require("sequelize");
+const { Op, fn, col } = require("sequelize");
 
 // Define the tracking route
 module.exports.createMeasurement = async (req, res, next) => {
@@ -286,9 +286,7 @@ module.exports.getTrainingHistoryReport = async (req, res, next) => {
       });
     }
 
-    res.json(
-      createResponse(data, "measurements report successfully retrive.")
-    );
+    res.json(createResponse(data, "measurements report successfully retrive."));
   } catch (error) {
     logger.error("Error fetching measurements report:", error.message);
     next(error);
@@ -429,6 +427,56 @@ module.exports.generateTrainingHistoryReport = async (req, res, next) => {
 
     res.json(createResponse(filePath, "Report file generated successfully."));
   } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.updateStepsByusers = async (req, res, next) => {
+  const { number_of_steps, task_id } = req.body;
+
+  try {
+    // Update the task status to 'Finish'
+    if (task_id) {
+      await db.Task.update(
+        { task_status: "Finish", number_of_steps },
+        { where: { task_id } }
+      );
+    }
+
+    const today = new Date();
+
+    // Calculate the date of the last Saturday
+    const lastSaturday = new Date();
+    lastSaturday.setDate(today.getDate() - today.getDay() - 1); // 'today.getDay()' gives the day of the week (0 for Sunday, 1 for Monday, etc.)
+    console.log("user id ", req.user);
+    // Query to get all finished tasks
+    const finishedTasks = await db.Task.findAll({
+      where: {
+        task_status: "Finish",
+        task_type: "steps",
+        user_id: req.user.id,
+        due_date: {
+          [Op.between]: [lastSaturday, today],
+        },
+      },
+      raw: true,
+    });
+
+    let total = 0;
+    let count = 0;
+    finishedTasks.map((item) => {
+      total += item.number_of_steps;
+      count++;
+    });
+
+    await db.Task.update(
+      { task_status: "Finish", average_steps: Math.floor(total / count) },
+      { where: { task_id } }
+    );
+    res.json(createResponse({}, "Steps data successfully updated."));
+  } catch (error) {
+    logger.error("Error inserting steps entry:", error.message);
+    // res.status(500).json({ error: "Database error" });
     next(error);
   }
 };

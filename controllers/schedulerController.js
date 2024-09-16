@@ -84,20 +84,38 @@ schedule.scheduleJob("0 0 23 * * *", async function () {
 
 // Define the job to run every night for create step task task
 schedule.scheduleJob("0 0 00 * * *", async function () {
+  // schedule.scheduleJob("5 * * * * *", async function () {
   console.log(
-    "Running scheduled job at 12:00 AM every night for create measurement task"
+    "Running scheduled job at 12:00 AM every night for create steps task"
   );
-
-  const today = new Date().toISOString().slice(0, 10);
-  await db.Task.create({
-    user_id: measurement.user_id,
-    task_name: "Steps",
-    task_description: "Tracking Steps",
-    task_status: "Pending",
-    task_type: "steps",
-    due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  const UserData = await db.User.findAll({
+    attributes: ["user_id"],
+    raw: true, // This will simplify the result to just the plain data
   });
+
+  const userIds = UserData.map((user) => user.user_id);
+  // console.log(userIds);
+  // console.log("user data ", UserData);
+  // const today = new Date().toISOString().slice(0, 10);
+  // console.log("today ", today);
+  for (const userId of userIds) {
+    await db.Task.create({
+      user_id: userId,
+      task_name: "Steps",
+      task_description: "Tracking Steps",
+      task_status: "Pending",
+      task_type: "steps",
+      due_date: new Date(Date.now() + 1 * 23 * 60 * 60 * 1000), // Due date 23 hours from now
+    });
+  }
   console.log("End running scheduled job");
+  // const today = new Date();
+  // const dayOfWeek = today.getDay(); // Sunday is 0, Monday is 1, and so on
+  // const daysToSunday = dayOfWeek; // If today is Sunday, this will be 0
+  // const currentSunday = new Date(today);
+  // currentSunday.setDate(today.getDate() - daysToSunday);
+
+  // console.log(currentSunday.toDateString());
 });
 
 // Sent a remainder mail at 10 PM every night
