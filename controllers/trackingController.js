@@ -203,7 +203,7 @@ module.exports.getMeasurementReport = async (req, res, next) => {
       where: query,
     });
     const data = [];
-    measurements.map((item) => {
+    for (const item of measurements) {
       data.push({
         Arml: item.arml,
         Armr: item.armr,
@@ -214,8 +214,12 @@ module.exports.getMeasurementReport = async (req, res, next) => {
         Weight: item.weight,
         "Body Fat Percentage": item.body_fat_percentage,
         Date: item.date,
+        photo1: item.photo1 ? await getUrl(item.photo1) : item.photo1,
+        photo2: item.photo2 ? await getUrl(item.photo2) : item.photo2,
+        photo3: item.photo3 ? await getUrl(item.photo3) : item.photo3,
+        photo4: item.photo4 ? await getUrl(item.photo4) : item.photo4,
       });
-    });
+    }
 
     res.json(createResponse(data, "measurements report successfully retrive."));
   } catch (error) {
