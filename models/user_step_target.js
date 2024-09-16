@@ -19,6 +19,9 @@ module.exports = (sequelize) => {
       step_target: {
         type: DataTypes.INTEGER,
       },
+      step_average: {
+        type: DataTypes.INTEGER,
+      },
     },
     {
       sequelize,
@@ -27,8 +30,8 @@ module.exports = (sequelize) => {
     }
   );
 
-  UserStepTargets.associate = function(models) {
-    UserStepTargets.belongsTo(models.User, { foreignKey: 'user_id' });
+  UserStepTargets.associate = function (models) {
+    UserStepTargets.belongsTo(models.User, { foreignKey: "user_id" });
   };
 
   return UserStepTargets;

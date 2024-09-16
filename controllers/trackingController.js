@@ -469,11 +469,30 @@ module.exports.updateStepsByusers = async (req, res, next) => {
       count++;
     });
 
-    await db.Task.update(
-      { task_status: "Finish", average_steps: Math.floor(total / count) },
-      { where: { task_id } }
+    await db.UserStepTargets.update(
+      { step_average: Math.floor(total / count) },
+      { where: { user_id: req.user.id } }
     );
     res.json(createResponse({}, "Steps data successfully updated."));
+  } catch (error) {
+    logger.error("Error inserting steps entry:", error.message);
+    // res.status(500).json({ error: "Database error" });
+    next(error);
+  }
+};
+
+module.exports.getStepsByusers = async (req, res, next) => {
+  const { number_of_steps, task_id } = req.body;
+
+  try {
+    const avarage = await db.UserStepTargets.findOne({
+      where: {
+        user_id: req.user.id,
+      },
+      raw: true,
+    });
+
+    res.json(createResponse({ avarage }, "Steps data successfully get."));
   } catch (error) {
     logger.error("Error inserting steps entry:", error.message);
     // res.status(500).json({ error: "Database error" });

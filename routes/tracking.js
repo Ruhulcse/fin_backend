@@ -11,6 +11,7 @@ const {
   getMeasurementReport,
   getTrainingHistoryReport,
   updateStepsByusers,
+  getStepsByusers,
 } = require("../controllers/trackingController");
 const { putObject } = require("../middlewares/s3Upload");
 const { upload } = require("../middlewares/imageUpload");
@@ -26,6 +27,7 @@ router.get("/api/tracking/latest-measurement/:userId", getMeasurementBYUserID);
 router.post("/api/tracking/food-entry", createFoodEntry);
 router.get("/api/tracking/food-entry", getUserFoodEntries);
 router.post("/api/tracking/user-steps", updateStepsByusers);
+router.get("/api/tracking/steps-stats", getStepsByusers);
 router.post("/api/tracking/measurement-report", generateMeasurementReport);
 router.post("/api/tracking/training-report", generateTrainingHistoryReport);
 router.get("/api/tracking/measurement-report", getMeasurementReport);
